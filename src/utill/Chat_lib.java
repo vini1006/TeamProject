@@ -62,7 +62,7 @@ public class Chat_lib {
 		// t_chat_pop_name.getText()
 
 		// RegistMember 테이블로부터 멤버아이디얻어오기
-		String sql_select_RegistMember_id = "select member_no from registmember where member_name =?";
+		String sql_select_RegistMember_no = "select member_no from registmember where member_name =?";
 
 		// chatmember에 chat 테이블의 pk 넣기
 		String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member_no)"
@@ -72,11 +72,11 @@ public class Chat_lib {
 			pstmt = con.prepareStatement(sql_insert_chat);
 			pstmt.setString(1, mainApp.t_chat_pop_name.getText());
 			int isExecute = pstmt.executeUpdate();
-			pstmt.close();
 			if (isExecute == 0) {
 				JOptionPane.showMessageDialog(mainApp.frame, "chat insert 쿼리실패");
 			} else {
 				JOptionPane.showMessageDialog(mainApp.frame, "chat insert 쿼리성공");
+				pstmt.close();
 				pstmt = con.prepareStatement(sql_select_pk_chat);
 				pstmt.setString(1, mainApp.t_chat_pop_name.getText());
 				rs = pstmt.executeQuery();
@@ -90,14 +90,14 @@ public class Chat_lib {
 					JOptionPane.showMessageDialog(mainApp.frame, "chat_id 불러오기실패");
 				} else {
 					JOptionPane.showMessageDialog(mainApp.frame, "chat_id 불러옴");
-					pstmt = con.prepareStatement(sql_select_RegistMember_id);
+					pstmt = con.prepareStatement(sql_select_RegistMember_no);
 					for (int i = 0; i < mainApp.chat_settedMember.size(); i++) {
 						pstmt.setString(1, mainApp.chat_settedMember.get(i));
 						rs = pstmt.executeQuery();
 						if (rs.next() == false) {
 							JOptionPane.showMessageDialog(mainApp.frame, "member_no 불러오기실패");
 						} else {
-							member_idList.add(rs.getInt("member_id"));
+							member_idList.add(rs.getInt("member_no"));
 						}
 					}
 
@@ -185,6 +185,9 @@ public class Chat_lib {
 			rs.next();
 			chat_id = rs.getInt("chat_id");
 			mainApp.frame.setTitle(title);
+			
+			rs.close();
+			pstmt.close();
 
 			pstmt = con.prepareStatement(sql_select_chat_member);
 			rs = pstmt.executeQuery();
