@@ -349,7 +349,7 @@ public class MainApp {
 		p_chat_south_center.setPreferredSize(new Dimension(240, 80));
 		chatListScroll = new JScrollPane(p_chat_south_center, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		p_chat_south_center.setLayout(null);
+//		p_chat_south_center.setLayout();
 		p_west_south_chatList.setBackground(new Color(64, 64, 64));
 		p_west_south_chatList.setPreferredSize(new Dimension(240, 0));
 

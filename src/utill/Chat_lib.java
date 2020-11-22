@@ -1,9 +1,11 @@
 package utill;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -14,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -127,26 +130,45 @@ public class Chat_lib {
 	public void createChatList(JPanel panel, String chatName, int fontSize) {
 		Font font = new Font("HY견고딕", Font.BOLD, fontSize);
 		JLabel label = new JLabel(chatName, 10);
+		JButton Xbutton = new JButton("X");
 		label.setHorizontalAlignment(SwingConstants.LEFT);
 		label.setFont(font);
+		Xbutton.setHorizontalAlignment(SwingConstants.RIGHT);
+		Xbutton.setFont(font);
 		mainApp.chatSmallLabels.add(label);
 		JPanel panel1 = new JPanel();
-		panel1.add(mainApp.chatSmallLabels.get(mainApp.chatSmallLabels.size() - 1));
+		panel1.setLayout(new BorderLayout());
+		panel1.add(mainApp.chatSmallLabels.get(mainApp.chatSmallLabels.size() - 1),BorderLayout.CENTER);
+		panel1.add(Xbutton,BorderLayout.EAST);
 		panel1.setBackground(new Color(0, 0, 0, 60));
 		panel1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		panel1.setPreferredSize(new Dimension(240, 40));
+		panel1.setPreferredSize(new Dimension(180, 40));
 		panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		Xbutton.addActionListener((e)->{
+			PreparedStatement pstmt = null;
+			panel.remove(Xbutton.getParent());
+			mainApp.chatSmallLabels.remove(label);
+			mainApp.chatSmallPanels.remove(panel1);
+			panel.updateUI();
+//			String sql = "update chat set chat_status='0' where chat_title = ?";
+			String sql = "delete from chatmember where member_no= ?";
+			try {
+				pstmt = con.prepareStatement(sql);
+				pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
+				int isDone = pstmt.executeUpdate();
+				if(isDone == 0 ) {
+					System.out.println("chatMember에서 본인삭제실패");
+				}else {
+					System.out.println("chatMember에서 본인삭제완료");
+				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			} finally {
+				dbManager.close(pstmt);
+			}
+		});
+				
 		MouseAdapter chat_m_adapt = new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-//					System.out.println("들");
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-//					System.out.println("나");
-			}
-
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				System.out.println(label.getText());

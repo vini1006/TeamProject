@@ -311,7 +311,7 @@ public class LoginPage extends JPanel {
             mainApp.chat_settedMember.add(mainApp.default_label.getText());
             if(chat_lib.chatComparingUser()) {
             	String sql_chat_id = "select chat_id from chatmember where member_no = ?";
-            	String sql_chat_title = "select chat_title from chat where chat_id = ?";
+            	String sql_chat_title = "select chat_title from chat where chat_id = ? and chat_status = ?";
             	ArrayList<Integer> chat_id_list = new ArrayList<Integer>();
             	String title = "";
 //            	ArrayList<String> titleList = new ArrayList<String>();
@@ -325,6 +325,7 @@ public class LoginPage extends JPanel {
             	pstmt = con.prepareStatement(sql_chat_title);
             	for(int i=0; i<chat_id_list.size();i++) {
             		pstmt.setInt(1, chat_id_list.get(i));
+            		pstmt.setString(2, "1");
             		rs = pstmt.executeQuery();
             		if(rs.next() != false) {
             			title = rs.getString("chat_title");
