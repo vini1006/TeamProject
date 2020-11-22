@@ -17,10 +17,10 @@ public class ChatMemberVO {
 	public void setChatMember_id(int chatMember_id) {
 		this.chatMember_id = chatMember_id;
 	}
-	public int getMember() {
+	public int getMember_id() {
 		return member_id;
 	}
-	public void setMember(int member_id) {
+	public void setMember_id(int member_id) {
 		this.member_id = member_id;
 	}
 	

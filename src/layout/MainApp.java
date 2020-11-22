@@ -37,8 +37,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import models.ChatMemberVO;
 import models.ChatVO;
 import models.MessageVO;
+import models.RegistMemberVO;
 import utill.Chat_lib;
 import utill.DBManager;
 
@@ -51,9 +53,14 @@ public class MainApp {
 	DBManager dbManager;
 
 	/*---------------------------------------------------------------
-	* 접곡관련 변수
+	* 접속관련 변수
 	---------------------------------------------------------------*/
 	public Connection con;
+	
+	/*---------------------------------------------------------------
+	* 회원관련 변수
+	---------------------------------------------------------------*/
+	private RegistMemberVO registMemberVO;
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 
@@ -65,12 +72,15 @@ public class MainApp {
 	public ArrayList<String> chat_settedMember = new ArrayList<String>();
 	public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
 	public ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
-	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>();
-	public ArrayList<MessageVO> messageVOList = new java.util.ArrayList<MessageVO>();
+	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>(); //아마 안쓸듯..
+	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>();
+	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
+	
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
 	---------------------------------------------------------------*/
+	
 
 	ArrayList<JPanel> boardPanels = new ArrayList<JPanel>();
 	ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
@@ -96,9 +106,11 @@ public class MainApp {
 	Popup popup;
 	Popup popup_ch;
 	Popup popup_ch_add;
+	JLabel la_userName;
 
 	public static boolean s_pop = false;
 	public static boolean c_pop = false;
+	private boolean HasSession = false;
 
 	JButton btnSearch;
 
@@ -142,9 +154,24 @@ public class MainApp {
 		initialize();
 
 	}
+	
+	
+	
 
-	public void createMyChat() {
+	public boolean isHasSession() {
+		return HasSession;
+	}
 
+	public void setHasSession(boolean setHasSession) {
+		this.HasSession = setHasSession;
+	}
+
+	public RegistMemberVO getRegistMemberVO() {
+		return registMemberVO;
+	}
+
+	public void setRegistMemberVO(RegistMemberVO registMemberVO) {
+		this.registMemberVO = registMemberVO;
 	}
 
 	/*---------------------------------------------------
@@ -251,7 +278,7 @@ public class MainApp {
 		la_groupName.setBounds(77, 20, 130, 18);
 		p_west_north_title.add(la_groupName);
 
-		JLabel la_userName = new JLabel("사용자명");
+		la_userName = new JLabel("사용자명");
 		la_userName.setFont(new Font("HY견고딕", Font.BOLD, 15));
 		la_userName.setForeground(Color.WHITE);
 		la_userName.setBounds(79, 48, 89, 18);
