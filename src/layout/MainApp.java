@@ -23,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -75,6 +76,8 @@ public class MainApp {
 	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>(); //아마 안쓸듯..
 	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>();
 	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
+	
+	JLabel default_label;
 	
 
 	/*---------------------------------------------------------------
@@ -213,21 +216,13 @@ public class MainApp {
 	* 채팅 pop add 참여인원 라벨추가 메소드
 	---------------------------------------------------*/
 	public void chatPopAddappendLabel(String name) {
-		if (chatPopAddLabels.size() == 0) {
+//		if (chatPopAddLabels.size() == 0) {
 			chat_settedMember.add(name);
 			JLabel selectedName = new JLabel(name);
 			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
 			selectedName.setPreferredSize(new Dimension(180, 30));
 			chatPopAddLabels.add(selectedName);
 			p_chat_set_pop_add_panel.add(selectedName);
-		} else {
-			chat_settedMember.add(name);
-			JLabel selectedName = new JLabel(name);
-			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
-			selectedName.setPreferredSize(new Dimension(180, 30));
-			chatPopAddLabels.add(selectedName);
-			p_chat_set_pop_add_panel.add(selectedName);
-		}
 	}
 
 	/*---------------------------------------------
@@ -570,28 +565,28 @@ public class MainApp {
 		bt_chat_pop_ok.setBounds(132, 359, 91, 23);
 		p_chat_set_pop.add(bt_chat_pop_ok);
 		bt_chat_pop_ok.addActionListener((e) -> {
-
-			/*------------------------------------------
-			 * 쿼리문 실행 담기 (chat 테이블과, chatmember까지 채움)
+			if(t_chat_pop_name.getText().isEmpty() || chat_settedMember.size()<=1) {
+				JOptionPane.showMessageDialog(frame, "타이틀과 멤버를 넣어주세요.");
+				System.out.println(chat_settedMember.size());
+			}else {
+				/*------------------------------------------
+				 * 쿼리문 실행 담기 (chat 테이블과, chatmember까지 채움)
 			 --------------------------------------------*/
-			System.out.println("문제 전");
-			chat_lib.insertChatTable();
-			System.out.println("문제 후");
-			/*------------------------------------------
-			 * 채팅생성버튼 -> 채팅팝업, 채팅팝업에드 2개패널생성
+				chat_lib.insertChatTable();
+				/*------------------------------------------
+				 * 채팅생성버튼 -> 채팅팝업, 채팅팝업에드 2개패널생성
 			 --------------------------------------------*/
-			Object obj = e.getSource();
-			if (obj == bt_chat_pop_ok) {
-				chat_lib.createChatList(p_chat_south_center, t_chat_pop_name.getText(), 15);
-				t_chat_pop_name.setText("");
-				popup_ch.hide();
-				popup_ch_add.hide();
-				for (int i = 0; i < chatPopAddLabels.size(); i++) {
-					p_chat_set_pop_add_panel.remove(chatPopAddLabels.get(i));
+				Object obj = e.getSource();
+				if (obj == bt_chat_pop_ok) {
+					chat_lib.createChatList(p_chat_south_center, t_chat_pop_name.getText(), 15);
+					popup_ch.hide();
+					popup_ch_add.hide();
+					for (int i = 0; i < chatPopAddLabels.size(); i++) {
+						p_chat_set_pop_add_panel.remove(chatPopAddLabels.get(i));
+					}
+					chatPopAddLabels.clear();
+					c_pop = false;
 				}
-				chatPopAddLabels.clear();
-				c_pop = false;
-				t_chat_pop_name.setText("");
 			}
 		});
 		/*-------------------------------------------------------------------------------------
@@ -611,6 +606,11 @@ public class MainApp {
 		p_chat_pop_add_scrolls = new JScrollPane(p_chat_set_pop_add_panel);
 		p_chat_pop_add_scrolls.setBackground(new Color(50, 50, 50, 180));
 		p_chat_pop_add_scrolls.setPreferredSize(new Dimension(180, 405));
+		
+		default_label = new JLabel();
+		default_label.setHorizontalAlignment(SwingConstants.LEFT);
+		default_label.setPreferredSize(new Dimension(180,30));
+		p_chat_set_pop_add_panel.add(default_label);
 
 		p_chat_set_pop_add_container.add(p_chat_pop_add_scrolls, BorderLayout.CENTER);
 

@@ -293,7 +293,6 @@ public class LoginPage extends JPanel {
         	 
             MainApp mainApp = new MainApp();
             chat_lib = new Chat_lib(mainApp);
-            JOptionPane.showMessageDialog(this, t_id.getText()+"로 접속합니다");
             
             //로그인을 성공했을때 회원정보를 보관 + 인증변수도 true로...
             mainApp.setHasSession(true);
@@ -308,23 +307,36 @@ public class LoginPage extends JPanel {
             registMemberVO.setMember_rank(rs.getString("member_rank"));
             
             mainApp.setRegistMemberVO(registMemberVO); //mainApp에 registMemberVO
-            
+            mainApp.default_label.setText(mainApp.getRegistMemberVO().getMember_name());
+            mainApp.chat_settedMember.add(mainApp.default_label.getText());
             if(chat_lib.chatComparingUser()) {
-            	String sql_chat = "select chat_title from chat where chat_id=(select chat_id from chat_member where member_no = ?))";
-            	ArrayList<String> titleList = new ArrayList<String>();
-            	dbManager.close(pstmt, rs);
-            	pstmt = con.prepareStatement(sql_chat);
+            	String sql_chat_id = "select chat_id from chatmember where member_no = ?";
+            	String sql_chat_title = "select chat_title from chat where chat_id = ?";
+            	ArrayList<Integer> chat_id_list = new ArrayList<Integer>();
+            	String title = "";
+//            	ArrayList<String> titleList = new ArrayList<String>();
+            	pstmt = con.prepareStatement(sql_chat_id);
             	pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
+            	rs = pstmt.executeQuery();
             	while(rs.next()) {
-            		titleList.add(rs.getString("chat_title"));
+            		chat_id_list.add(rs.getInt("chat_id"));
             	}
-            	for(int i =0; i<titleList.size(); i++) {
-            		chat_lib.createChatList(mainApp.p_chat_south_center, titleList.get(i), 15);
+            	
+            	pstmt = con.prepareStatement(sql_chat_title);
+            	for(int i=0; i<chat_id_list.size();i++) {
+            		pstmt.setInt(1, chat_id_list.get(i));
+            		rs = pstmt.executeQuery();
+            		if(rs.next() != false) {
+            			title = rs.getString("chat_title");
+            			chat_lib.createChatList(mainApp.p_chat_south_center, title, 15);
+            		}
             	}
+            	
             	loginHide();
             	mainApp.frame.setVisible(true);
             	mainApp.la_userName.setText(mainApp.getRegistMemberVO().getMember_id());
             	chat_lib.createPopPanelCheckBox();
+            	
             }else {
             	loginHide();
             	mainApp.frame.setVisible(true);

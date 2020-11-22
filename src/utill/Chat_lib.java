@@ -124,9 +124,9 @@ public class Chat_lib {
 	}
 
 	// 좌측하단의 채팅 목록에 리스트 생성하는 메소드
-	public void createChatList(JPanel panel, String folderName, int fontSize) {
+	public void createChatList(JPanel panel, String chatName, int fontSize) {
 		Font font = new Font("HY견고딕", Font.BOLD, fontSize);
-		JLabel label = new JLabel(folderName, 10);
+		JLabel label = new JLabel(chatName, 10);
 		label.setHorizontalAlignment(SwingConstants.LEFT);
 		label.setFont(font);
 		mainApp.chatSmallLabels.add(label);
@@ -186,9 +186,6 @@ public class Chat_lib {
 			chat_id = rs.getInt("chat_id");
 			mainApp.frame.setTitle(title);
 			
-			rs.close();
-			pstmt.close();
-
 			pstmt = con.prepareStatement(sql_select_chat_member);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -221,10 +218,7 @@ public class Chat_lib {
 			e.printStackTrace();
 		}
 
-		if (hasChat) {
-			return true;
-		}
-		return false;
+		return hasChat;
 	}
 
 	// 채팅생성시팝업패널에 현재 회원목록을 보여주는 체크박스 생성 메소드
@@ -239,11 +233,14 @@ public class Chat_lib {
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				nameList.add(rs.getString("member_name"));
-				
+				if(mainApp.getRegistMemberVO().getMember_name().equals(rs.getString("member_name"))==false) {
+					nameList.add(rs.getString("member_name"));
+				}
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
+		} finally {
+			dbManager.close(pstmt, rs);
 		}
 
 		for (int i = 0; i < nameList.size(); i++) {
@@ -251,7 +248,6 @@ public class Chat_lib {
 			checkBoxUser.setPreferredSize(new Dimension(160, 25));
 			checkBoxUser.setFont(new Font("HY견고딕", Font.PLAIN, 13));
 			checkBoxUser.setBackground(Color.GRAY);
-			System.out.println("문제없음 ^^");
 			
 			mainApp.p_chat_set_pop_checkPanel.add(checkBoxUser);
 			checkBoxUser.addItemListener(new ItemListener() {
