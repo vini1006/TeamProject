@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -12,13 +14,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
-import layout.CenterChattingPanel;
 import layout.MainApp;
 import models.ChatMemberVO;
 import models.ChatVO;
@@ -53,18 +55,18 @@ public class Chat_lib {
 
 		// chat 테이블에 작성
 		String sql_insert_chat = "insert into chat(chat_id, chat_title, chat_status)";
-		sql_insert_chat += " values(chat_seq.nextval, ?, '1')";
+		sql_insert_chat += " values(seq_chat.nextval, ?, '1')";
 
 		// chat 티이블의 pk 얻어오기
 		String sql_select_pk_chat = "select chat_id from chat where chat_title= ?";
 		// t_chat_pop_name.getText()
 
 		// RegistMember 테이블로부터 멤버아이디얻어오기
-		String sql_select_RegistMember_id = "select member_id from registmember where member_name =?";
+		String sql_select_RegistMember_id = "select member_no from registmember where member_name =?";
 
 		// chatmember에 chat 테이블의 pk 넣기
-		String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member_id)"
-				+ " values(?, chatmember_seq.nextval, ?)";
+		String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member_no)"
+				+ " values(?, seq_chatmember.nextval, ?)";
 
 		try {
 			pstmt = con.prepareStatement(sql_insert_chat);
@@ -93,15 +95,14 @@ public class Chat_lib {
 						pstmt.setString(1, mainApp.chat_settedMember.get(i));
 						rs = pstmt.executeQuery();
 						if (rs.next() == false) {
-							JOptionPane.showMessageDialog(mainApp.frame, "member_id 불러오기실패");
+							JOptionPane.showMessageDialog(mainApp.frame, "member_no 불러오기실패");
 						} else {
 							member_idList.add(rs.getInt("member_id"));
 						}
 					}
 
 //					String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member_id)"
-//							+ " values(?, chatmember_seq.nextval, ?)";
-
+//							+ " values(?, seq_chatmember.nextval, ?)";
 					pstmt = con.prepareStatement(sql_insert_chatmember);
 					pstmt.setInt(1, chat_id);
 					for (int i = 0; i < member_idList.size(); i++) {
@@ -191,7 +192,7 @@ public class Chat_lib {
 				ChatMemberVO chatMemberVO = new ChatMemberVO();
 				chatMemberVO.setChat_id(chat_id);
 				chatMemberVO.setChatMember_id(rs.getInt("chatmember_id"));
-				chatMemberVO.setMember_id(rs.getInt("member_id"));
+				chatMemberVO.setMember_no(rs.getInt("member_no"));
 				mainApp.chatMemberVOList.add(chatMemberVO);
 			}
 		} catch (SQLException e) {
@@ -199,28 +200,95 @@ public class Chat_lib {
 		} finally {
 			dbManager.close(pstmt, rs);
 		}
-		
-		if(chatComparingUser(mainApp.chatMemberVOList)) {
-			mainApp.chatVO.setChat_id(chat_id);
-			mainApp.chatVO.setChat_title(title);
-			mainApp.chatVO.setChat_status('1');
-			
-			CenterChattingPanel centerChattingPanel = new CenterChattingPanel();
-//		mainApp.p_center.add(centerChattingPanel, BorderLayout.CENTER);
-		}else {
-			return;
-		}
 	}
-	
-	
-	//
-	public boolean chatComparingUser(ArrayList<ChatMemberVO> chatMemberVOList) {
-		for(int i=0; i<chatMemberVOList.size();i++) {
-			ChatMemberVO chatMemberVO =  chatMemberVOList.get(i);
-			if(chatMemberVO.getMember_id() == mainApp.getRegistMemberVO().getMember_no()) {
-				return true;
-			}
+
+	// 로그인 하고, mainApp의 현재 RegistMemberVO의member_no와모든 chatmember의 member_no 와 비교하여
+	// 중복되는게 있다면 true 없으면 false
+	public boolean chatComparingUser() {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		boolean hasChat = false;
+		String sql = "select chat_id from chatmember where member_no = ?";
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
+			rs = pstmt.executeQuery();
+			hasChat = rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		if (hasChat) {
+			return true;
 		}
 		return false;
+	}
+
+	// 채팅생성시팝업패널에 현재 회원목록을 보여주는 체크박스 생성 메소드
+	public void createPopPanelCheckBox() {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<String> nameList = new ArrayList<String>();
+
+		String sql = "select member_name from registmember";
+
+		try {
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				nameList.add(rs.getString("member_name"));
+				
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+
+		for (int i = 0; i < nameList.size(); i++) {
+			JCheckBox checkBoxUser = new JCheckBox(nameList.get(i));
+			checkBoxUser.setPreferredSize(new Dimension(160, 25));
+			checkBoxUser.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+			checkBoxUser.setBackground(Color.GRAY);
+			System.out.println("문제없음 ^^");
+			
+			mainApp.p_chat_set_pop_checkPanel.add(checkBoxUser);
+			checkBoxUser.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						int x = mainApp.frame.getLocationOnScreen().x;
+						int y = mainApp.frame.getLocationOnScreen().y;
+						JCheckBox box = (JCheckBox) e.getItem();
+						mainApp.chatPopAddappendLabel(box.getText());
+						mainApp.popup_ch_add.hide();
+						mainApp.popup_ch_add = mainApp.popupFactory.getPopup(mainApp.frame, mainApp.p_chat_set_pop,
+								x + 415, y + 50);
+						mainApp.popup_ch_add.show();
+						mainApp.p_chat_set_pop_add_panel.updateUI();
+						mainApp.p_chat_set_pop_add_panel.repaint();
+						mainApp.p_chat_set_pop_add_container.updateUI();
+					} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+						JCheckBox box = (JCheckBox) e.getItem();
+						int x = mainApp.frame.getLocationOnScreen().x;
+						int y = mainApp.frame.getLocationOnScreen().y;
+						mainApp.popup_ch_add.hide();
+						for (int i = 0; i < mainApp.p_chat_set_pop_add_panel.getComponentCount(); i++) {
+							JLabel label = (JLabel) mainApp.p_chat_set_pop_add_panel.getComponent(i);
+							if (box.getText().equals(label.getText())) {
+								mainApp.p_chat_set_pop_add_panel.remove(i);
+								mainApp.chatPopAddLabels.remove(i);
+							} else {
+
+							}
+						}
+						mainApp.p_chat_set_pop_add_panel.updateUI();
+						mainApp.p_chat_set_pop_add_container.updateUI();
+						mainApp.popup_ch_add = mainApp.popupFactory.getPopup(mainApp.frame, mainApp.p_chat_set_pop,
+								x + 415, y + 50);
+						mainApp.p_chat_set_pop_add_panel.repaint();
+						mainApp.popup_ch_add.show();
+					}
+				}
+			});
+		}
 	}
 }

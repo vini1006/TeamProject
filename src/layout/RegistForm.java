@@ -33,8 +33,8 @@ import utill.DBManager;
 
 public class RegistForm extends JFrame {
 
-	private static final String url = "jdbc:oracle:thin:@localhost:1521:ORCL";
-	private static final String user = "user1104"; // DB ID
+	private static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
+	private static final String user = "koreait"; // DB ID
 	private static final String pass = "1234"; // DB 패스워드
 
 	public static final int WIDTH = 450;
@@ -72,7 +72,7 @@ public class RegistForm extends JFrame {
 	 * Create the application.
 	 */
 	public RegistForm() {
-
+		
 		initialize(dbManager);
 	}
 
@@ -218,7 +218,6 @@ public class RegistForm extends JFrame {
 			String sql = "insert into RegistMember(member_no, member_name,member_email,member_id ,member_password,member_rank)";
 			sql += " values(seq_RegistMember.nextval, ?,?,?,?,?)";
 
-			System.out.println();
 			con = DriverManager.getConnection(url, user, pass);
 			psmt = con.prepareStatement(sql);
 			psmt.setString(1, t_name.getText());
@@ -226,7 +225,6 @@ public class RegistForm extends JFrame {
 			psmt.setString(3, t_id.getText());
 			psmt.setString(4, new String(t_password.getPassword()));
 			psmt.setString(5, t_rank.getSelectedItem().toString());
-
 			int r = psmt.executeUpdate(); // 실행 -> 저장
 
 			if (r > 0) {
@@ -234,15 +232,11 @@ public class RegistForm extends JFrame {
 				loginPage = new LoginPage();
 				loginPage.loginShow();
 				registHide();
-
 			} else {
-
 				JOptionPane.showMessageDialog(null, "가입실패");
 			}
-
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(RegistForm.this, "중복된 아이디입니다\n다른 아이디를 사용하세요");
-
+			e.printStackTrace();
 		} finally {
 			if (psmt != null) {
 				try {

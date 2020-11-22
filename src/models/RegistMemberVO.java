@@ -10,6 +10,7 @@ public class RegistMemberVO {
 	private String member_rank;
 	
 	
+	
 	public int getMember_no() {
 		return member_no;
 	}

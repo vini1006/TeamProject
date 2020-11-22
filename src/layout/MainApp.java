@@ -84,7 +84,7 @@ public class MainApp {
 
 	ArrayList<JPanel> boardPanels = new ArrayList<JPanel>();
 	ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
-	ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
+	public ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
 
 	public JPanel p_center;
 	
@@ -96,17 +96,18 @@ public class MainApp {
 	JPanel p_east;
 	JPanel p_hamburger_pop_container;
 
-	PopupFactory popupFactory;
-	JPanel p_chat_set_pop;
-	JPanel p_chat_set_pop_add_container;
+	public PopupFactory popupFactory;
+	public JPanel p_chat_set_pop;
+	public JPanel p_chat_set_pop_add_container;
 	JPanel p_board_set_pop;
-	JPanel p_chat_set_pop_add_panel;
+	public JPanel p_chat_set_pop_add_panel;
+	public JPanel p_chat_set_pop_checkPanel;
 	JScrollPane p_chat_pop_add_scrolls;
 	Choice ch_chat_pop_invite;
-	Popup popup;
-	Popup popup_ch;
-	Popup popup_ch_add;
-	JLabel la_userName;
+	public Popup popup;
+	public Popup popup_ch;
+	public Popup popup_ch_add;
+	public JLabel la_userName;
 
 	public static boolean s_pop = false;
 	public static boolean c_pop = false;
@@ -154,8 +155,6 @@ public class MainApp {
 		initialize();
 
 	}
-	
-	
 	
 
 	public boolean isHasSession() {
@@ -332,6 +331,7 @@ public class MainApp {
 					popup_ch.show();
 					popup_ch_add.show();
 					MainApp.c_pop = true;
+					
 				} else {
 					MainApp.c_pop = false;
 					popup_ch.hide();
@@ -492,7 +492,7 @@ public class MainApp {
 		panel_search_pop_container.add(c_panel);
 
 		/*-------------------------------------------------------------------------------------
-		 * 채팅생성 버튼 팝업 p_chat_set_pop
+		 * 채팅생성 패널 버튼 팝업 p_chat_set_pop
 		   ------------------------------------------------------------------------------------*/
 
 		p_chat_set_pop = new JPanel();
@@ -542,96 +542,13 @@ public class MainApp {
 		la_chat_pop_invite.setBounds(12, 226, 126, 30);
 		p_chat_set_pop.add(la_chat_pop_invite);
 
-		JPanel p_chat_set_pop_checkPanel = new JPanel();
+		p_chat_set_pop_checkPanel = new JPanel();
 		p_chat_set_pop_checkPanel.setPreferredSize(new Dimension(10, 999999999));
 		p_chat_set_pop_checkPanel.setBackground(Color.GRAY);
 
 		JScrollPane p_chat_set_pop_scroll = new JScrollPane(p_chat_set_pop_checkPanel);
 		p_chat_set_pop_scroll.setBounds(12, 266, 207, 81);
 		p_chat_set_pop.add(p_chat_set_pop_scroll);
-
-		JCheckBox chckbxNewCheckBox_1 = new JCheckBox("babo!");
-		chckbxNewCheckBox_1.setPreferredSize(new Dimension(160, 25));
-		chckbxNewCheckBox_1.setFont(new Font("HY견고딕", Font.PLAIN, 13));
-		chckbxNewCheckBox_1.setBackground(Color.GRAY);
-		p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_1);
-		chckbxNewCheckBox_1.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					int x = frame.getLocationOnScreen().x;
-					int y = frame.getLocationOnScreen().y;
-					JCheckBox box = (JCheckBox) e.getItem();
-					chatPopAddappendLabel(box.getText());
-					popup_ch_add.hide();
-					popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x + 415, y + 50);
-					popup_ch_add.show();
-					p_chat_set_pop_add_panel.updateUI();
-					p_chat_set_pop_add_panel.repaint();
-					p_chat_set_pop_add_container.updateUI();
-				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-					JCheckBox box = (JCheckBox) e.getItem();
-					int x = frame.getLocationOnScreen().x;
-					int y = frame.getLocationOnScreen().y;
-					popup_ch_add.hide();
-					for (int i = 0; i < p_chat_set_pop_add_panel.getComponentCount(); i++) {
-						JLabel label = (JLabel) p_chat_set_pop_add_panel.getComponent(i);
-						if (box.getText().equals(label.getText())) {
-							p_chat_set_pop_add_panel.remove(i);
-							chatPopAddLabels.remove(i);
-						} else {
-
-						}
-					}
-					p_chat_set_pop_add_panel.updateUI();
-					p_chat_set_pop_add_container.updateUI();
-					popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x + 415, y + 50);
-					p_chat_set_pop_add_panel.repaint();
-					popup_ch_add.show();
-				}
-
-			}
-		});
-
-		JCheckBox chckbxNewCheckBox_2 = new JCheckBox("사용자이름");
-		chckbxNewCheckBox_2.setPreferredSize(new Dimension(160, 25));
-		chckbxNewCheckBox_2.setFont(new Font("HY견고딕", Font.PLAIN, 13));
-		chckbxNewCheckBox_2.setBackground(Color.GRAY);
-		p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_2);
-		chckbxNewCheckBox_2.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					int x = frame.getLocationOnScreen().x;
-					int y = frame.getLocationOnScreen().y;
-					JCheckBox box = (JCheckBox) e.getItem();
-					chatPopAddappendLabel(box.getText());
-					popup_ch_add.hide();
-					popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x + 415, y + 50);
-					popup_ch_add.show();
-					p_chat_set_pop_add_panel.repaint();
-					p_chat_set_pop_add_panel.updateUI();
-					p_chat_set_pop_add_container.updateUI();
-				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-					JCheckBox box = (JCheckBox) e.getItem();
-					int x = frame.getLocationOnScreen().x;
-					int y = frame.getLocationOnScreen().y;
-					popup_ch_add.hide();
-					for (int i = 0; i < p_chat_set_pop_add_panel.getComponentCount(); i++) {
-						JLabel label = (JLabel) p_chat_set_pop_add_panel.getComponent(i);
-						if (box.getText().equals(label.getText())) {
-							p_chat_set_pop_add_panel.remove(i);
-							chatPopAddLabels.remove(i);
-						}
-					}
-					p_chat_set_pop_add_panel.repaint();
-					p_chat_set_pop_add_panel.updateUI();
-					p_chat_set_pop_add_container.updateUI();
-					popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x + 415, y + 50);
-					popup_ch_add.show();
-				}
-			}
-		});
 
 		JButton bt_chat_pop_cancel = new JButton("취소");
 		bt_chat_pop_cancel.setFont(new Font("HY견고딕", Font.PLAIN, 12));

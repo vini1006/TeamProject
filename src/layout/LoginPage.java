@@ -1,6 +1,7 @@
 package layout;
 
-import java.awt.BorderLayout; 
+import java.awt.event.ItemListener;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -17,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -31,20 +33,21 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
 import features.Mailing;
-import layout.MainApp;
 import models.RegistMemberVO;
+import utill.Chat_lib;
 import utill.DBManager;
 
 
 public class LoginPage extends JPanel {
    
-   private static final String url = "jdbc:oracle:thin:@localhost:1521:ORCL";
-   private static final String user = "user1104"; // DB ID
+   private static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
+   private static final String user = "koreait"; // DB ID
    private static final String pass = "1234"; // DB 패스워드
    DBManager dbManager;
    Connection con;
    RegistMemberVO registMemberVO;
    MainApp mainApp;
+   Chat_lib chat_lib;
    
    public static final int WIDTH = 450;
    public static final int HEIGHT = 630;
@@ -84,8 +87,8 @@ public class LoginPage extends JPanel {
     * Create the application.
     */
    public LoginPage() {
-
-      initialize(dbManager);
+     
+	  initialize(dbManager);
    }
 
    public void loginShow() {
@@ -93,7 +96,8 @@ public class LoginPage extends JPanel {
    }
 
    public void loginHide() {
-      frame.setVisible(false);
+      frame.dispose();
+      
    }
 
    /**
@@ -286,31 +290,47 @@ public class LoginPage extends JPanel {
          
          rs = pstmt.executeQuery();
          if(rs.next()) { //레코드가 존재한다면...회원인증 성공 
+        	 
             MainApp mainApp = new MainApp();
-            
-            
+            chat_lib = new Chat_lib(mainApp);
             JOptionPane.showMessageDialog(this, t_id.getText()+"로 접속합니다");
-            
-            
             
             //로그인을 성공했을때 회원정보를 보관 + 인증변수도 true로...
             mainApp.setHasSession(true);
             
             //회원정보 채워넣기!!
             RegistMemberVO registMemberVO = new RegistMemberVO();//빈 멤버객체
-            registMemberVO.setMember_no(rs.getInt("member_no"));
+            registMemberVO.setMember_no(rs.getInt("member_no"));//pk
             registMemberVO.setMember_name(rs.getString("member_name"));
             registMemberVO.setMember_email(rs.getString("member_email"));
-            registMemberVO.setMember_id(rs.getString("member_id"));//pk
+            registMemberVO.setMember_id(rs.getString("member_id"));//
             registMemberVO.setMember_password(rs.getString("member_password"));
             registMemberVO.setMember_rank(rs.getString("member_rank"));
             
-            mainApp.setRegistMemberVO(registMemberVO); //mainApp에 registMemberVO 
+            mainApp.setRegistMemberVO(registMemberVO); //mainApp에 registMemberVO
             
-            loginHide();
-            mainApp.frame.setVisible(true);
-            mainApp.la_userName.setText(mainApp.getRegistMemberVO().getMember_id());
-            
+            if(chat_lib.chatComparingUser()) {
+            	String sql_chat = "select chat_title from chat where chat_id=(select chat_id from chat_member where member_no = ?))";
+            	ArrayList<String> titleList = new ArrayList<String>();
+            	dbManager.close(pstmt, rs);
+            	pstmt = con.prepareStatement(sql_chat);
+            	pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
+            	while(rs.next()) {
+            		titleList.add(rs.getString("chat_title"));
+            	}
+            	for(int i =0; i<titleList.size(); i++) {
+            		chat_lib.createChatList(mainApp.p_chat_south_center, titleList.get(i), 15);
+            	}
+            	loginHide();
+            	mainApp.frame.setVisible(true);
+            	mainApp.la_userName.setText(mainApp.getRegistMemberVO().getMember_id());
+            	chat_lib.createPopPanelCheckBox();
+            }else {
+            	loginHide();
+            	mainApp.frame.setVisible(true);
+            	mainApp.la_userName.setText(mainApp.getRegistMemberVO().getMember_id());
+            	chat_lib.createPopPanelCheckBox();
+            }
          }else {
             JOptionPane.showMessageDialog(this, "로그인 정보가 올바르지 않습니다");
          }

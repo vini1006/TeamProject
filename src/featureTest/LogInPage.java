@@ -25,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
+import features.Mailing;
+
 
 public class LogInPage {
    
