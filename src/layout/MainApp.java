@@ -6,20 +6,30 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,15 +44,40 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
-public class Testing {
+import models.ChatVO;
+import utill.DBManager;
+
+public class MainApp {
    JScrollPane chatListScroll, boardListScroll;
    JPanel p_west_south_inChatList;
    private JFrame frame;
    JTextField t_chat_pop_name, t_board_pop_name;
-   ArrayList<JPanel> panels = new ArrayList<JPanel>();
-   ArrayList<JLabel> labels = new ArrayList<JLabel>();
+   DBManager dbManager;
+   
+   /*---------------------------------------------------------------
+    * 접곡관련 변수
+    ---------------------------------------------------------------*/
+   Connection con;
+   
+   /*---------------------------------------------------------------
+    * 채팅 관련 
+    ---------------------------------------------------------------*/
+   ChatVO chatVO;
+   ArrayList<String> chat_settedMember = new ArrayList<String>();
+   ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
+   ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
+   ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>();
+   
+   /*---------------------------------------------------------------
+    * 채팅 관련 끝
+    ---------------------------------------------------------------*/
+   
+   
+   
    ArrayList<JPanel> boardPanels = new ArrayList<JPanel>();
    ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
+   ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
+   
    JPanel p_west_south_chatList,p_west_south_chat;
    JPanel p_chat_south_center;
    JTextField t_searchField;
@@ -52,10 +87,18 @@ public class Testing {
    
    PopupFactory popupFactory;
    JPanel p_chat_set_pop;
+   JPanel p_chat_set_pop_add_container;
    JPanel p_board_set_pop;
+   JPanel p_chat_set_pop_add_panel;
+   JScrollPane p_chat_pop_add_scrolls;
+   Choice ch_chat_pop_invite;
    Popup popup; 
+   Popup popup_ch; 
+   Popup popup_ch_add;
+   
    
    public static boolean s_pop = false;
+   public static boolean c_pop = false;
    
    JButton btnSearch;
 
@@ -66,7 +109,7 @@ public class Testing {
       EventQueue.invokeLater(new Runnable() {
          public void run() {
             try {
-               Testing window = new Testing();
+               MainApp window = new MainApp();
                window.frame.setVisible(true);
             } catch (Exception e) {
                e.printStackTrace();
@@ -78,13 +121,14 @@ public class Testing {
    /**
     * Create the application.
     */
-   public Testing() {
+   public MainApp() {
       initialize();
    }
-      
-   /**
-    * Initialize the contents of the frame.
-    */
+   
+	public void createMyChat() {
+		
+	}
+   
    
    /*---------------------------------------------------
     * 게시판 패널 생성메서드
@@ -117,16 +161,16 @@ public class Testing {
 		}
    
    /*---------------------------------------------------
-    * 채팅창 패널 생성메서드
+    * 채팅창 패널 생성메서드 createFolder
     ---------------------------------------------------*/
    public void createFolder(JPanel panel, String folderName, int fontSize) {
 			Font font = new Font("HY견고딕", Font.BOLD, fontSize);
 			JLabel label = new JLabel(folderName, 10);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			label.setFont(font);
-			labels.add(label);
+			chatSmallLabels.add(label);
 			JPanel panel1 = new JPanel();
-			panel1.add(labels.get(labels.size()-1));
+			panel1.add(chatSmallLabels.get(chatSmallLabels.size()-1));
 			panel1.setBackground(new Color(0, 0, 0, 60));
 			panel1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 			panel1.setPreferredSize(new Dimension(240, 40));
@@ -134,26 +178,32 @@ public class Testing {
 			MouseAdapter chat_m_adapt = new MouseAdapter() {
 				@Override
 				public void mouseEntered(MouseEvent e) {
-					System.out.println("들");
+//					System.out.println("들");
 				}
 				
 				@Override
 				public void mouseExited(MouseEvent e) {
-					System.out.println("나");
+//					System.out.println("나");
+				}
+				
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					System.out.println(label.getText());
 				}
 			};
 			
-			if(panels.size()<=0) {
+			if(chatSmallPanels.size()<=0) {
 				panel1.setBounds(0, 0, 240, 40);
 			}else {
-				panel1.setBounds(panels.get(panels.size()-1).getX(), panels.get(panels.size()-1).getY()+40,240,40);
+				panel1.setBounds(chatSmallPanels.get(chatSmallPanels.size()-1).getX(), chatSmallPanels.get(chatSmallPanels.size()-1).getY()+40,240,40);
 			}
 			
-			panels.add(panel1);
-			for(int i =0; i < panels.size(); i++) {
-				panels.get(i).addMouseListener(chat_m_adapt);
+			chatSmallPanels.add(panel1);
+			for(int i =0; i < chatSmallPanels.size(); i++) {
+				chatSmallPanels.get(i).addMouseListener(chat_m_adapt);
 			}
-			panel.add(panels.get(panels.size()-1));
+			panel.add(chatSmallPanels.get(chatSmallPanels.size()-1));
 			panel.setPreferredSize(new Dimension(240, panel.getHeight()+40));
 			panel.updateUI();
 			p_west_south_chat.updateUI();
@@ -162,13 +212,62 @@ public class Testing {
    /*---------------------------------------------------
     * 채팅창 패널 생성메서드 끝
     ---------------------------------------------------*/
+   /*---------------------------------------------------
+    * 채팅 pop add 참여인원 라벨추가 메소드
+    ---------------------------------------------------*/
+   public void chatPopAddappendLabel(String name) {
+	   
+	   if(chatPopAddLabels.size() == 0) {
+		   chat_settedMember.add(name);
+		   JLabel selectedName = new JLabel(name);
+		   selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
+		   selectedName.setPreferredSize(new Dimension(180,30));
+		   chatPopAddLabels.add(selectedName);
+		   p_chat_set_pop_add_panel.add(selectedName);
+	   }else {
+		   chat_settedMember.add(name);
+		   JLabel selectedName = new JLabel(name);
+		   selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
+		   selectedName.setPreferredSize(new Dimension(180,30));
+		   chatPopAddLabels.add(selectedName);
+		   p_chat_set_pop_add_panel.add(selectedName);
+	   }
+   }
+   
+   /*---------------------------------------------
+    * 채팅 pop add 참여인원 라벨추가 메소드 끝
+    ---------------------------------------------*/
+   
    
    private void initialize() {
+	   /*------------------------------------------------------
+	    * 외부 클래스 new 하는곳 
+	    -----------------------------------------------------*/
+	   dbManager = new DBManager();
+	   
+	   /*------------------------------------------------------
+	   접속 관련 
+	    -----------------------------------------------------*/
+	   con = dbManager.connect();
+	   
+	   
+	   
+	   
+	   
+	   /* ------------------------------------------------------
+	    *	채팅용 new 공간
+	    -------------------------------------------------------*/
+	   chatVO = new ChatVO();
+	   
+	   
+	   
+	   /* ------------------------------------------------------
+	    *	
+	    -------------------------------------------------------*/
+	   
+	   
 	   try {
 			UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
-//	    	UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
-//	    	UIManager.setLookAndFeel("com.jtattoo.plaf.acryl.AcrylLookAndFeel");
-
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -214,6 +313,15 @@ public class Testing {
       la_userName.setBounds(79, 48, 89, 18);
       p_west_north_title.add(la_userName);
       
+      JPanel panel = new JPanel();
+      panel.setBounds(12, 20, 53, 46);
+      p_west_north_title.add(panel);
+      panel.setLayout(new BorderLayout(0, 0));
+      
+      JLabel lblNewLabel_1 = new JLabel("");
+      lblNewLabel_1.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\minizi.png"));
+      panel.add(lblNewLabel_1, BorderLayout.CENTER);
+      
       JPanel p_west_north_boardTitle = new JPanel();
       p_west_north_boardTitle.setBorder(new MatteBorder(1, 0, 1, 0, (Color) new Color(0, 0, 0)));
       p_west_north_boardTitle.setPreferredSize(new Dimension(240, 40));
@@ -243,21 +351,21 @@ public class Testing {
       JButton bt_chat = new JButton("+");
       bt_chat.addActionListener(new ActionListener() {
       	public void actionPerformed(ActionEvent e) {
-      		/*------------------------------------------
-      		 * 채팅생성버튼에 팝업달기
       		
-      		 --------------------------------------------*/
       	  int x = frame.getLocationOnScreen().x;
       	  int y = frame.getLocationOnScreen().y;
-      	  if(s_pop == false) {
-      		  popup = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
-      		  popup.show();
-      		  Testing.s_pop = true;
+      	  if(c_pop == false) {
+      		  t_chat_pop_name.setText("");
+      		  popup_ch = popupFactory.getPopup(frame, p_chat_set_pop_add_container, x+650,y+50);
+      		  popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
+      		  popup_ch.show();
+      		  popup_ch_add.show();
+      		  MainApp.c_pop = true;
       	  }else{
-      		  Testing.s_pop = false;
-      		  popup.hide();
+      		  MainApp.c_pop = false;
+      		  popup_ch.hide();
+      		  popup_ch_add.hide();
       	  }
-      		
       	}
       });
       bt_chat.setBounds(173, 4, 41, 27);
@@ -308,9 +416,9 @@ public class Testing {
     	  if(s_pop == false) {
     		  popup = popupFactory.getPopup(frame, p_board_set_pop, x+415,y+50);
     		  popup.show();
-    		  Testing.s_pop = true;
+    		  MainApp.s_pop = true;
     	  }else{
-    		  Testing.s_pop = false;
+    		  MainApp.s_pop = false;
     		  popup.hide();
     	  }
       });
@@ -329,15 +437,15 @@ public class Testing {
       	  if(s_pop == false) {
       		  popup = popupFactory.getPopup(frame, p_hamburger_pop_container, x-240,y+10);
       		  popup.show();
-      		  Testing.s_pop = true;
+      		  MainApp.s_pop = true;
       	  }else{
-      		  Testing.s_pop = false;
+      		  MainApp.s_pop = false;
       		  popup.hide();
       	  }
       		
       	}
       });
-      btnHamburger.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\hamburger.png"));
+      btnHamburger.setIcon(new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/hamburger.png"));
       btnHamburger.setFocusPainted(false);
       btnHamburger.setContentAreaFilled(false);
       btnHamburger.setBorder(null);
@@ -414,17 +522,21 @@ public class Testing {
 	
 	
 	/*-------------------------------------------------------------------------------------
-	 * 채팅생성버튼 팝업 p_chat_set_pop
+	 * 채팅생성 버튼 팝업 p_chat_set_pop
        ------------------------------------------------------------------------------------*/
+	ArrayList<String> ch_invited_nameList = new ArrayList<String>();
+	
+	
+	
 	p_chat_set_pop = new JPanel();
-	p_chat_set_pop.setBackground(new Color(32,32,32,100));
-	p_chat_set_pop.setBounds(0, 0, 350, 400);
+	p_chat_set_pop.setBackground(new Color(50,50,50,180));
+	p_chat_set_pop.setBounds(0, 0, 230, 405);
 	p_chat_set_pop.setLayout(null);
 	
 	JLabel la_chat_pop_title = new JLabel("채팅 시작");
 	la_chat_pop_title.setForeground(Color.LIGHT_GRAY);
 	la_chat_pop_title.setFont(new Font("HY견고딕", Font.PLAIN, 28));
-	la_chat_pop_title.setBounds(115, 10, 150, 69);
+	la_chat_pop_title.setBounds(57, 10, 150, 69);
 	p_chat_set_pop.add(la_chat_pop_title);
 	
 	JLabel la_chat_pop_name = new JLabel("이름");
@@ -461,34 +573,193 @@ public class Testing {
 	la_chat_pop_invite.setBounds(12, 226, 126, 30);
 	p_chat_set_pop.add(la_chat_pop_invite);
 	
-	Choice ch_chat_pop_invite = new Choice();
-	ch_chat_pop_invite.setPreferredSize(new Dimension(7, 21));
-	ch_chat_pop_invite.setForeground(Color.WHITE);
-	ch_chat_pop_invite.setBackground(Color.DARK_GRAY);
-	ch_chat_pop_invite.setBounds(12, 262, 207, 20);
-	p_chat_set_pop.add(ch_chat_pop_invite);
+	
+	JPanel p_chat_set_pop_checkPanel = new JPanel();
+	p_chat_set_pop_checkPanel.setPreferredSize(new Dimension(10, 999999999));
+	p_chat_set_pop_checkPanel.setBackground(Color.GRAY);
+	
+	JScrollPane p_chat_set_pop_scroll = new JScrollPane(p_chat_set_pop_checkPanel);
+	p_chat_set_pop_scroll.setBounds(12, 266, 207, 81);
+	p_chat_set_pop.add(p_chat_set_pop_scroll);
+	
+	JCheckBox chckbxNewCheckBox_1 = new JCheckBox("babo!");
+	chckbxNewCheckBox_1.setPreferredSize(new Dimension(160, 25));
+	chckbxNewCheckBox_1.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+	chckbxNewCheckBox_1.setBackground(Color.GRAY);
+	p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_1);
+	chckbxNewCheckBox_1.addItemListener(new ItemListener() {
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				int x = frame.getLocationOnScreen().x;
+				int y = frame.getLocationOnScreen().y;
+				JCheckBox box = (JCheckBox)e.getItem();
+				chatPopAddappendLabel(box.getText());
+				popup_ch_add.hide();
+				popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
+	      		popup_ch_add.show();
+		      	p_chat_set_pop_add_panel.updateUI();
+		      	p_chat_set_pop_add_panel.repaint();
+				p_chat_set_pop_add_container.updateUI();
+			}else if(e.getStateChange() == ItemEvent.DESELECTED) {
+				JCheckBox box = (JCheckBox)e.getItem();
+				int x = frame.getLocationOnScreen().x;
+				int y = frame.getLocationOnScreen().y;
+				popup_ch_add.hide();
+				for(int i = 0 ; i < p_chat_set_pop_add_panel.getComponentCount(); i++) {
+					JLabel label = (JLabel)p_chat_set_pop_add_panel.getComponent(i);
+					if(box.getText().equals(label.getText())) {
+						p_chat_set_pop_add_panel.remove(i);
+						chatPopAddLabels.remove(i);
+					}else {
+						
+					}
+				}
+		      	p_chat_set_pop_add_panel.updateUI();
+		      	p_chat_set_pop_add_container.updateUI();
+				popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
+				p_chat_set_pop_add_panel.repaint();
+	      		popup_ch_add.show();
+			}
+				
+		}
+	}); 
+	
+	JCheckBox chckbxNewCheckBox_2 = new JCheckBox("사용자이름");
+	chckbxNewCheckBox_2.setPreferredSize(new Dimension(160, 25));
+	chckbxNewCheckBox_2.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+	chckbxNewCheckBox_2.setBackground(Color.GRAY);
+	p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_2);
+	chckbxNewCheckBox_2.addItemListener(new ItemListener() {
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if(e.getStateChange() == ItemEvent.SELECTED) {
+				int x = frame.getLocationOnScreen().x;
+				int y = frame.getLocationOnScreen().y;
+				JCheckBox box = (JCheckBox)e.getItem();
+				chatPopAddappendLabel(box.getText());
+				popup_ch_add.hide();
+				popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
+	      		popup_ch_add.show();
+	      		p_chat_set_pop_add_panel.repaint();
+		      	p_chat_set_pop_add_panel.updateUI();
+				p_chat_set_pop_add_container.updateUI();
+			}else if(e.getStateChange() == ItemEvent.DESELECTED) {
+				JCheckBox box = (JCheckBox)e.getItem();
+				int x = frame.getLocationOnScreen().x;
+				int y = frame.getLocationOnScreen().y;
+				popup_ch_add.hide();
+				for(int i = 0 ; i < p_chat_set_pop_add_panel.getComponentCount(); i++) {
+					JLabel label = (JLabel)p_chat_set_pop_add_panel.getComponent(i);
+					if(box.getText().equals(label.getText())) {
+						p_chat_set_pop_add_panel.remove(i);
+						chatPopAddLabels.remove(i);
+					}
+				}
+				p_chat_set_pop_add_panel.repaint();
+		      	p_chat_set_pop_add_panel.updateUI();
+		      	p_chat_set_pop_add_container.updateUI();
+				popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x+415,y+50);
+	      		popup_ch_add.show();
+			}
+		}
+	}); 
+	
+	
 	
 	JButton bt_chat_pop_cancel = new JButton("취소");
 	bt_chat_pop_cancel.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-	bt_chat_pop_cancel.setBounds(128, 359, 91, 23);
+	bt_chat_pop_cancel.setBounds(29, 359, 91, 23);
 	p_chat_set_pop.add(bt_chat_pop_cancel);
 	bt_chat_pop_cancel.addActionListener((e)->{
-			popup.hide();
-			s_pop = false;
+		popup_ch.hide();
+		popup_ch_add.hide();
+		for(int i=0;i<chatPopAddLabels.size();i++) {
+			p_chat_set_pop_add_panel.remove(chatPopAddLabels.get(i));
+		}
+		chatPopAddLabels.clear();
+		c_pop = false;
+		t_chat_pop_name.setText("");
 	});
+	
 	JButton bt_chat_pop_ok = new JButton("시작");
 	bt_chat_pop_ok.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-	bt_chat_pop_ok.setBounds(231, 359, 91, 23);
+	bt_chat_pop_ok.setBounds(132, 359, 91, 23);
 	p_chat_set_pop.add(bt_chat_pop_ok);
 	bt_chat_pop_ok.addActionListener((e)->{
+		
+		/*------------------------------------------
+  		 * 쿼리문 및 VO에 담기
+  		 --------------------------------------------*/
+		PreparedStatement pstmt = null;
+  		String sql_insert_chat = "insert into chat(chat_id, chat_title, chat_status)";
+  		sql_insert_chat += " values(chat_seq.nextval, ?, '1')";
+  		
+  		String sql_select_chat = "select chat_id from chat where chat_title="+t_chat_pop_name.getText();
+
+  		try {
+			pstmt = con.prepareStatement(sql_insert_chat);
+			pstmt.setString(1, t_chat_pop_name.getText());
+			int isExecute = pstmt.executeUpdate();
+			if( isExecute == 0) {
+				JOptionPane.showMessageDialog(frame, "접속실패");
+			}else {
+				frame.setTitle("koreaIT로 접속중");
+				String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member)"
+						+ " values(, chatmember_seq.nextval, ?)"; 
+				pstmt = con.prepareStatement(sql_insert_chatmember);
+				
+				for(int i=0; i < chat_settedMember.size(); i++) {
+					pstmt.setString(1, chat_settedMember.get(i));
+					pstmt.executeUpdate();
+				}
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+  		/*------------------------------------------
+  		 * 채팅생성버튼 -> 채팅팝업, 채팅팝업에드
+  		 --------------------------------------------*/
 		Object obj = e.getSource();
-  		if(obj == bt_chat_pop_ok) {
-  			createFolder(p_chat_south_center, t_chat_pop_name.getText(), 15);
+		if(obj == bt_chat_pop_ok) {
+			createFolder(p_chat_south_center, t_chat_pop_name.getText(), 15);
   			t_chat_pop_name.setText("");
-  			popup.hide();
-			s_pop = false;
-  		}
+  			popup_ch.hide();
+  			popup_ch_add.hide();
+  			for(int i=0;i<chatPopAddLabels.size();i++) {
+  				p_chat_set_pop_add_panel.remove(chatPopAddLabels.get(i));
+  			}
+  			chatPopAddLabels.clear();
+  			c_pop = false;
+  			t_chat_pop_name.setText("");
+  			
+		}
 	});
+	/*-------------------------------------------------------------------------------------
+	 * 채팅 생성 add pop up 패널 p_chat_set_pop_add_container
+       ------------------------------------------------------------------------------------*/
+	
+	p_chat_set_pop_add_container = new JPanel();
+	p_chat_set_pop_add_container.setBounds(0, 0, 180, 405);
+	p_chat_set_pop_add_container.setBackground(new Color(50,50,50,180));
+	
+	frame.getContentPane().add(p_chat_set_pop_add_container);
+	p_chat_set_pop_add_container.setLayout(new BorderLayout(0, 0));
+	
+	
+	p_chat_set_pop_add_panel = new JPanel();
+	p_chat_set_pop_add_panel.setPreferredSize(new Dimension(180,405));
+	p_chat_set_pop_add_panel.setBackground(new Color(50,50,50,180));
+	
+	p_chat_pop_add_scrolls = new JScrollPane(p_chat_set_pop_add_panel);
+	p_chat_pop_add_scrolls.setBackground(new Color(50,50,50,180));
+	p_chat_pop_add_scrolls.setPreferredSize(new Dimension(180,405));
+	
+	p_chat_set_pop_add_container.add(p_chat_pop_add_scrolls, BorderLayout.CENTER);
+	
+	/*-------------------------------------------------------------------------------------
+	 * 채팅 생성 add pop up 패널 끝
+       ------------------------------------------------------------------------------------*/
 	
 	/*-------------------------------------------------------------------------------------
 	 * 게시판생성버튼 팝업 p_board_set_pop
@@ -644,7 +915,7 @@ public class Testing {
        ------------------------------------------------------------------------------------*/
       
       btnSearch = new JButton("");
-      btnSearch.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\magnifier.png"));
+      btnSearch.setIcon(new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/magnifier.png"));
       btnSearch.setFocusPainted(false);
       btnSearch.setContentAreaFilled(false);
       btnSearch.setBorder(null);
@@ -658,9 +929,9 @@ public class Testing {
     	  if(s_pop == false) {
     		  popup = popupFactory.getPopup(frame, panel_search_pop_container, x-240,y);
     		  popup.show();
-    		  Testing.s_pop = true;
+    		  MainApp.s_pop = true;
     	  }else{
-    		  Testing.s_pop = false;
+    		  MainApp.s_pop = false;
     		  popup.hide();
     	  }
       });
@@ -668,7 +939,7 @@ public class Testing {
       
       
       JButton btnPreferences = new JButton("");
-      btnPreferences.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\gear.png.png"));
+      btnPreferences.setIcon(new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/gear.png.png"));
       btnPreferences.setFocusPainted(false);
       btnPreferences.setContentAreaFilled(false);
       btnPreferences.setBorder(null);
@@ -713,11 +984,68 @@ public class Testing {
       JTextArea textArea = new JTextArea();
       textArea.setBounds(69, 14, 865, 116);
       p_center_south.add(textArea);
+      /*-------------------------------------------------------------------------------
+       * 가운데 채팅 패널 설정! 
+       -------------------------------------------------------------------------------*/
+      JPanel p_center_chat = new JPanel();
+      p_center_chat.setPreferredSize(new Dimension(0, 0));
+      p_center_chat.setBorder(new LineBorder(new Color(0, 0, 0)));
+      p_center.add(p_center_chat, BorderLayout.CENTER);
+      p_center_chat.setBackground(new Color(64, 64, 64));
+      p_center_chat.setLayout(new BorderLayout(0, 0));
       
-      JPanel p_chat_big = new JPanel();
-      p_chat_big.setPreferredSize(new Dimension(0, 0));
-      p_chat_big.setBorder(new LineBorder(new Color(0, 0, 0)));
-      p_center.add(p_chat_big, BorderLayout.CENTER);
-      p_chat_big.setBackground(new Color(64, 64, 64));
+      JPanel p_center_chat_west = new JPanel();
+      p_center_chat_west.setBackground(Color.DARK_GRAY);
+      p_center_chat_west.setPreferredSize(new Dimension(83,0));
+      p_center_chat.add(p_center_chat_west, BorderLayout.WEST);
+      
+      JPanel p_center_chat_center = new JPanel();
+      p_center_chat_center.setBackground(Color.DARK_GRAY);
+      p_center_chat.add(p_center_chat_center, BorderLayout.CENTER);
+      
+      JPanel p_center_chat_east = new JPanel();
+      p_center_chat_east.setBackground(Color.DARK_GRAY);
+      p_center_chat_east.setPreferredSize(new Dimension(83,0));
+      p_center_chat.add(p_center_chat_east, BorderLayout.EAST);
+      p_center_chat_east.setLayout(null);
+      
+      JPanel p_myChat_test_1 = new JPanel() {
+      	protected void paintComponent(Graphics g) {
+    		Graphics2D g2 = (Graphics2D)g;
+    		ImageIcon icon = new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/chat_human.png");
+    		Image img = icon.getImage();
+    		g2.drawImage(img, 5,5,null);
+      	}
+      };
+      
+      p_myChat_test_1.setLayout(null);
+      p_myChat_test_1.setBackground(Color.DARK_GRAY);
+      p_myChat_test_1.setBounds(4, 4, 75, 75);
+      p_center_chat_east.add(p_myChat_test_1);
+      p_center_chat_west.setLayout(null);
+      
+     
+      JPanel p_myChat_test = new JPanel() {
+    	  @Override
+    	protected void paintComponent(Graphics g) {
+    		Graphics2D g2 = (Graphics2D)g;
+    		ImageIcon icon = new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/chat_human.png");
+    		Image img = icon.getImage();
+    		g2.drawImage(img, 5,5,null);
+    	}
+      };
+      
+      p_myChat_test.setBounds(4, 4, 75, 75);
+      p_myChat_test.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+      p_myChat_test.setBackground(Color.DARK_GRAY);
+      p_myChat_test.setLayout(null);
+      p_center_chat_west.add(p_myChat_test);
+      
+      
+      /*-------------------------------------------------------------------------------
+       * 가운데 채팅 패널 설정! 
+       -------------------------------------------------------------------------------*/
+      
    }
+   
 }

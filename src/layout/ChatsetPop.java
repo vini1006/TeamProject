@@ -16,6 +16,8 @@ import javax.swing.border.EtchedBorder;
 import java.awt.Choice;
 import java.awt.Dimension;
 import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JCheckBox;
 
 public class ChatsetPop {
 
@@ -56,13 +58,13 @@ public class ChatsetPop {
 		
 		JPanel p_chat_set_pop = new JPanel();
 		p_chat_set_pop.setBackground(new Color(64,64,64,200));
-		p_chat_set_pop.setBounds(0, 0, 346, 405);
+		p_chat_set_pop.setBounds(0, 0, 231, 405);
 		p_chat_set_pop.setLayout(null);
 		
 		JLabel la_chat_pop_title = new JLabel("채팅 시작");
 		la_chat_pop_title.setForeground(Color.LIGHT_GRAY);
 		la_chat_pop_title.setFont(new Font("HY견고딕", Font.PLAIN, 28));
-		la_chat_pop_title.setBounds(115, 10, 150, 69);
+		la_chat_pop_title.setBounds(57, 10, 150, 69);
 		p_chat_set_pop.add(la_chat_pop_title);
 		
 		JLabel la_chat_pop_name = new JLabel("이름");
@@ -90,7 +92,7 @@ public class ChatsetPop {
 		ch_chat_pop_auth.setForeground(Color.WHITE);
 		ch_chat_pop_auth.setBackground(Color.DARK_GRAY);
 		ch_chat_pop_auth.setPreferredSize(new Dimension(7, 21));
-		ch_chat_pop_auth.setBounds(12, 186, 207, 49);
+		ch_chat_pop_auth.setBounds(12, 186, 207, 30);
 		p_chat_set_pop.add(ch_chat_pop_auth);
 		
 		JLabel la_chat_pop_invite = new JLabel("참여 인원 선택");
@@ -99,22 +101,60 @@ public class ChatsetPop {
 		la_chat_pop_invite.setBounds(12, 226, 126, 30);
 		p_chat_set_pop.add(la_chat_pop_invite);
 		
-		Choice ch_chat_pop_invite = new Choice();
-		ch_chat_pop_invite.setPreferredSize(new Dimension(7, 21));
-		ch_chat_pop_invite.setForeground(Color.WHITE);
-		ch_chat_pop_invite.setBackground(Color.DARK_GRAY);
-		ch_chat_pop_invite.setBounds(12, 262, 207, 20);
-		p_chat_set_pop.add(ch_chat_pop_invite);
-		
 		JButton bt_chat_pop_cancel = new JButton("취소");
 		bt_chat_pop_cancel.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-		bt_chat_pop_cancel.setBounds(128, 359, 91, 23);
+		bt_chat_pop_cancel.setBounds(29, 359, 91, 23);
 		p_chat_set_pop.add(bt_chat_pop_cancel);
+		bt_chat_pop_cancel.addActionListener((e)->{
+			/*
+			popup.hide();
+			s_pop = false;
+			t_chat_pop_name.setText("");
+			*/
+		});
 		
 		JButton bt_chat_pop_ok = new JButton("시작");
 		bt_chat_pop_ok.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-		bt_chat_pop_ok.setBounds(231, 359, 91, 23);
+		bt_chat_pop_ok.setBounds(132, 359, 91, 23);
 		p_chat_set_pop.add(bt_chat_pop_ok);
+		
+		JScrollPane p_chat_set_pop_scroll = new JScrollPane();
+		p_chat_set_pop_scroll.setBounds(12, 266, 207, 81);
+		p_chat_set_pop.add(p_chat_set_pop_scroll);
+		
+		JPanel p_chat_set_pop_checkPanel = new JPanel();
+		p_chat_set_pop_checkPanel.setPreferredSize(new Dimension(10, 21));
+		p_chat_set_pop_checkPanel.setBackground(Color.GRAY);
+		p_chat_set_pop_scroll.setViewportView(p_chat_set_pop_checkPanel);
+		
+		JCheckBox chckbxNewCheckBox_1 = new JCheckBox("사용자이름");
+		chckbxNewCheckBox_1.setPreferredSize(new Dimension(160, 25));
+		chckbxNewCheckBox_1.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+		chckbxNewCheckBox_1.setBackground(Color.GRAY);
+		p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_1);
+		
+		JCheckBox chckbxNewCheckBox_2 = new JCheckBox("사용자이름");
+		chckbxNewCheckBox_2.setPreferredSize(new Dimension(160, 25));
+		chckbxNewCheckBox_2.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+		chckbxNewCheckBox_2.setBackground(Color.GRAY);
+		p_chat_set_pop_checkPanel.add(chckbxNewCheckBox_2);
+		
+		JCheckBox chckbxNewCheckBox = new JCheckBox("사용자이름");
+		chckbxNewCheckBox.setBackground(Color.GRAY);
+		chckbxNewCheckBox.setFont(new Font("HY견고딕", Font.PLAIN, 13));
+		chckbxNewCheckBox.setPreferredSize(new Dimension(160, 25));
+		p_chat_set_pop_checkPanel.add(chckbxNewCheckBox);
+		
+		bt_chat_pop_ok.addActionListener((e)->{
+			Object obj = e.getSource();
+			if(obj == bt_chat_pop_ok) {
+				/*
+				createFolder(p_chat_south_center, t_chat_pop_name.getText(), 15);
+	  			t_chat_pop_name.setText("");
+	  			popup.hide();
+				s_pop = false;
+				*/
+			}
+		});
 	}
-
 }
