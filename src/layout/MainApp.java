@@ -45,13 +45,15 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import models.ChatVO;
+import utill.Chat_lib;
 import utill.DBManager;
 
 public class MainApp {
    JScrollPane chatListScroll, boardListScroll;
    JPanel p_west_south_inChatList;
-   private JFrame frame;
-   JTextField t_chat_pop_name, t_board_pop_name;
+   public JFrame frame;
+   public JTextField t_chat_pop_name;
+   JTextField t_board_pop_name;
    DBManager dbManager;
    
    /*---------------------------------------------------------------
@@ -63,22 +65,22 @@ public class MainApp {
     * 채팅 관련 
     ---------------------------------------------------------------*/
    ChatVO chatVO;
-   ArrayList<String> chat_settedMember = new ArrayList<String>();
-   ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
-   ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
-   ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>();
+   Chat_lib chat_lib;
+   public ArrayList<String> chat_settedMember = new ArrayList<String>();
+   public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
+   public ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
+   public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>();
    
    /*---------------------------------------------------------------
     * 채팅 관련 끝
     ---------------------------------------------------------------*/
    
-   
-   
    ArrayList<JPanel> boardPanels = new ArrayList<JPanel>();
    ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
    ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
    
-   JPanel p_west_south_chatList,p_west_south_chat;
+   JPanel p_west_south_chatList;
+public JPanel p_west_south_chat;
    JPanel p_chat_south_center;
    JTextField t_searchField;
    JPanel panel_search_pop_container;
@@ -161,62 +163,14 @@ public class MainApp {
 		}
    
    /*---------------------------------------------------
-    * 채팅창 패널 생성메서드 createFolder
+    * 채팅창 리스트 생성메서드 createChatList //chat_lib클래스로 옮김
+    * ====================================================
     ---------------------------------------------------*/
-   public void createFolder(JPanel panel, String folderName, int fontSize) {
-			Font font = new Font("HY견고딕", Font.BOLD, fontSize);
-			JLabel label = new JLabel(folderName, 10);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			label.setFont(font);
-			chatSmallLabels.add(label);
-			JPanel panel1 = new JPanel();
-			panel1.add(chatSmallLabels.get(chatSmallLabels.size()-1));
-			panel1.setBackground(new Color(0, 0, 0, 60));
-			panel1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-			panel1.setPreferredSize(new Dimension(240, 40));
-			panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-			MouseAdapter chat_m_adapt = new MouseAdapter() {
-				@Override
-				public void mouseEntered(MouseEvent e) {
-//					System.out.println("들");
-				}
-				
-				@Override
-				public void mouseExited(MouseEvent e) {
-//					System.out.println("나");
-				}
-				
-				
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					System.out.println(label.getText());
-				}
-			};
-			
-			if(chatSmallPanels.size()<=0) {
-				panel1.setBounds(0, 0, 240, 40);
-			}else {
-				panel1.setBounds(chatSmallPanels.get(chatSmallPanels.size()-1).getX(), chatSmallPanels.get(chatSmallPanels.size()-1).getY()+40,240,40);
-			}
-			
-			chatSmallPanels.add(panel1);
-			for(int i =0; i < chatSmallPanels.size(); i++) {
-				chatSmallPanels.get(i).addMouseListener(chat_m_adapt);
-			}
-			panel.add(chatSmallPanels.get(chatSmallPanels.size()-1));
-			panel.setPreferredSize(new Dimension(240, panel.getHeight()+40));
-			panel.updateUI();
-			p_west_south_chat.updateUI();
-		}
-   
-   /*---------------------------------------------------
-    * 채팅창 패널 생성메서드 끝
-    ---------------------------------------------------*/
+   	
    /*---------------------------------------------------
     * 채팅 pop add 참여인원 라벨추가 메소드
     ---------------------------------------------------*/
    public void chatPopAddappendLabel(String name) {
-	   
 	   if(chatPopAddLabels.size() == 0) {
 		   chat_settedMember.add(name);
 		   JLabel selectedName = new JLabel(name);
@@ -252,12 +206,11 @@ public class MainApp {
 	   
 	   
 	   
-	   
-	   
 	   /* ------------------------------------------------------
 	    *	채팅용 new 공간
 	    -------------------------------------------------------*/
 	   chatVO = new ChatVO();
+	   chat_lib = new Chat_lib();
 	   
 	   
 	   
@@ -524,8 +477,6 @@ public class MainApp {
 	/*-------------------------------------------------------------------------------------
 	 * 채팅생성 버튼 팝업 p_chat_set_pop
        ------------------------------------------------------------------------------------*/
-	ArrayList<String> ch_invited_nameList = new ArrayList<String>();
-	
 	
 	
 	p_chat_set_pop = new JPanel();
@@ -689,40 +640,15 @@ public class MainApp {
 	bt_chat_pop_ok.addActionListener((e)->{
 		
 		/*------------------------------------------
-  		 * 쿼리문 및 VO에 담기
+  		 * 쿼리문 실행 담기 (chat 테이블과, chatmember까지 채움)
   		 --------------------------------------------*/
-		PreparedStatement pstmt = null;
-  		String sql_insert_chat = "insert into chat(chat_id, chat_title, chat_status)";
-  		sql_insert_chat += " values(chat_seq.nextval, ?, '1')";
-  		
-  		String sql_select_chat = "select chat_id from chat where chat_title="+t_chat_pop_name.getText();
-
-  		try {
-			pstmt = con.prepareStatement(sql_insert_chat);
-			pstmt.setString(1, t_chat_pop_name.getText());
-			int isExecute = pstmt.executeUpdate();
-			if( isExecute == 0) {
-				JOptionPane.showMessageDialog(frame, "접속실패");
-			}else {
-				frame.setTitle("koreaIT로 접속중");
-				String sql_insert_chatmember = "insert into chatmember(chat_id, chatmember_id, member)"
-						+ " values(, chatmember_seq.nextval, ?)"; 
-				pstmt = con.prepareStatement(sql_insert_chatmember);
-				
-				for(int i=0; i < chat_settedMember.size(); i++) {
-					pstmt.setString(1, chat_settedMember.get(i));
-					pstmt.executeUpdate();
-				}
-			}
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
+		chat_lib.insertChatTable();
   		/*------------------------------------------
-  		 * 채팅생성버튼 -> 채팅팝업, 채팅팝업에드
+  		 * 채팅생성버튼 -> 채팅팝업, 채팅팝업에드 2개패널생성
   		 --------------------------------------------*/
 		Object obj = e.getSource();
 		if(obj == bt_chat_pop_ok) {
-			createFolder(p_chat_south_center, t_chat_pop_name.getText(), 15);
+			chat_lib.createChatList(p_chat_south_center, t_chat_pop_name.getText(), 15);
   			t_chat_pop_name.setText("");
   			popup_ch.hide();
   			popup_ch_add.hide();
@@ -732,7 +658,6 @@ public class MainApp {
   			chatPopAddLabels.clear();
   			c_pop = false;
   			t_chat_pop_name.setText("");
-  			
 		}
 	});
 	/*-------------------------------------------------------------------------------------
