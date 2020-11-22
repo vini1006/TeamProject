@@ -1,5 +1,6 @@
 package utill;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -17,7 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
+import layout.CenterChattingPanel;
 import layout.MainApp;
+import models.ChatVO;
+import models.MessageVO;
 
 /*
  * 채팅 관련 메소드들 모아놓는 lib 클래스
@@ -31,8 +35,9 @@ import layout.MainApp;
 
 public class Chat_lib {
 	DBManager dbManager;
-	Connection con;
 	MainApp mainApp;
+	Connection con;
+	ChatVO chatVO;
 
 	public Chat_lib(MainApp mainApp) {
 		this.dbManager = new DBManager();
@@ -126,6 +131,7 @@ public class Chat_lib {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				System.out.println(label.getText());
+				loadChatPanel(label.getText());
 				
 			}
 		};
@@ -146,7 +152,63 @@ public class Chat_lib {
 		panel.updateUI();
 		mainApp.p_west_south_chat.updateUI();
 	}
-
 	
+	public void loadChatPanel(String title) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String chat_title = title;
+		int chat_id = 0;
+		String sql = "select chat_id from chat where chat_title = ?";
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, chat_title);
+			rs = pstmt.executeQuery();
+			rs.next();
+			chat_id = rs.getInt("chat_id");
+			mainApp.frame.setTitle(title);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.close(pstmt,rs);
+		}
+		
+		mainApp.chatVO.setChat_id(chat_id);
+		mainApp.chatVO.setChat_title(title);
+		mainApp.chatVO.setChat_status('1');
+		
+		CenterChattingPanel centerChattingPanel = new CenterChattingPanel();
+		loadMessage(centerChattingPanel, chat_id);
+		
+		mainApp.p_center.add(centerChattingPanel, BorderLayout.CENTER);
+	}
+	
+	public void loadMessage(CenterChattingPanel centerChattingPanel, int chat_id) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "select message_id,content, chat_time, member_id from message where chat_id = ?";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, chat_id);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				MessageVO messageVO = new MessageVO();
+				messageVO.setMessage_id(rs.getInt("message_id"));
+				messageVO.setChat_id(chat_id);
+				messageVO.setContent(rs.getString("content"));
+				messageVO.setMember_id(rs.getInt("member_id"));
+				messageVO.setChat_time(rs.getString("chat_time"));
+				mainApp.messageVOList.add(messageVO);
+			};
+			
+			for(int i = 0; i<mainApp.messageVOList.size(); i++) {
+				
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
 }

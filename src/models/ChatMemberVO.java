@@ -3,7 +3,7 @@ package models;
 public class ChatMemberVO {
 	private int chat_id;
 	private int chatMember_id;
-	private String member;
+	private int member_id;
 	
 	public int getChat_id() {
 		return chat_id;
@@ -17,11 +17,11 @@ public class ChatMemberVO {
 	public void setChatMember_id(int chatMember_id) {
 		this.chatMember_id = chatMember_id;
 	}
-	public String getMember() {
-		return member;
+	public int getMember() {
+		return member_id;
 	}
-	public void setMember(String member) {
-		this.member = member;
+	public void setMember(int member_id) {
+		this.member_id = member_id;
 	}
 	
 	

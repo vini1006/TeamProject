@@ -7,10 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,9 +16,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -29,7 +23,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -45,6 +38,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import models.ChatVO;
+import models.MessageVO;
 import utill.Chat_lib;
 import utill.DBManager;
 
@@ -64,12 +58,15 @@ public class MainApp {
 	/*---------------------------------------------------------------
 	* 채팅 관련 
 	---------------------------------------------------------------*/
-	ChatVO chatVO;
+	public ChatVO chatVO;
+	public MessageVO messageVO;
 	Chat_lib chat_lib;
+	CenterChattingPanel centerChattingPanel;
 	public ArrayList<String> chat_settedMember = new ArrayList<String>();
 	public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
 	public ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
 	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>();
+	public ArrayList<MessageVO> messageVOList = new java.util.ArrayList<MessageVO>();
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
@@ -79,6 +76,8 @@ public class MainApp {
 	ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
 	ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
 
+	public JPanel p_center;
+	
 	JPanel p_west_south_chatList;
 	public JPanel p_west_south_chat;
 	JPanel p_chat_south_center;
@@ -138,6 +137,7 @@ public class MainApp {
 
 		chatVO = new ChatVO();
 		chat_lib = new Chat_lib(this);
+		
 
 		initialize();
 
@@ -856,7 +856,7 @@ public class MainApp {
 		btnPreferences.setBorder(null);
 		p_east.add(btnPreferences);
 
-		JPanel p_center = new JPanel();
+		p_center = new JPanel();
 		p_center.setBackground(new Color(64, 64, 64));
 		p_center.setPreferredSize(new Dimension(900, 560));
 		frame.getContentPane().add(p_center, BorderLayout.CENTER);
@@ -895,61 +895,6 @@ public class MainApp {
 		JTextArea textArea = new JTextArea();
 		textArea.setBounds(69, 14, 865, 116);
 		p_center_south.add(textArea);
-		/*-------------------------------------------------------------------------------
-		 * 가운데 채팅 패널 설정! 
-		 -------------------------------------------------------------------------------*/
-		JPanel p_center_chat = new JPanel();
-		p_center_chat.setPreferredSize(new Dimension(0, 0));
-		p_center_chat.setBorder(new LineBorder(new Color(0, 0, 0)));
-		p_center.add(p_center_chat, BorderLayout.CENTER);
-		p_center_chat.setBackground(new Color(64, 64, 64));
-		p_center_chat.setLayout(new BorderLayout(0, 0));
-
-		JPanel p_center_chat_west = new JPanel();
-		p_center_chat_west.setBackground(Color.DARK_GRAY);
-		p_center_chat_west.setPreferredSize(new Dimension(83, 0));
-		p_center_chat.add(p_center_chat_west, BorderLayout.WEST);
-
-		JPanel p_center_chat_center = new JPanel();
-		p_center_chat_center.setBackground(Color.DARK_GRAY);
-		p_center_chat.add(p_center_chat_center, BorderLayout.CENTER);
-
-		JPanel p_center_chat_east = new JPanel();
-		p_center_chat_east.setBackground(Color.DARK_GRAY);
-		p_center_chat_east.setPreferredSize(new Dimension(83, 0));
-		p_center_chat.add(p_center_chat_east, BorderLayout.EAST);
-		p_center_chat_east.setLayout(null);
-
-		JPanel p_myChat_test_1 = new JPanel() {
-			protected void paintComponent(Graphics g) {
-				Graphics2D g2 = (Graphics2D) g;
-				ImageIcon icon = new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/chat_human.png");
-				Image img = icon.getImage();
-				g2.drawImage(img, 5, 5, null);
-			}
-		};
-
-		p_myChat_test_1.setLayout(null);
-		p_myChat_test_1.setBackground(Color.DARK_GRAY);
-		p_myChat_test_1.setBounds(4, 4, 75, 75);
-		p_center_chat_east.add(p_myChat_test_1);
-		p_center_chat_west.setLayout(null);
-
-		JPanel p_myChat_test = new JPanel() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				Graphics2D g2 = (Graphics2D) g;
-				ImageIcon icon = new ImageIcon("C:/workspace/Java_workspace/TeamProject/src/res/chat_human.png");
-				Image img = icon.getImage();
-				g2.drawImage(img, 5, 5, null);
-			}
-		};
-
-		p_myChat_test.setBounds(4, 4, 75, 75);
-		p_myChat_test.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		p_myChat_test.setBackground(Color.DARK_GRAY);
-		p_myChat_test.setLayout(null);
-		p_center_chat_west.add(p_myChat_test);
 
 		/*-------------------------------------------------------------------------------
 		 * 가운데 채팅 패널 설정! 

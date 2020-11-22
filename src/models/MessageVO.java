@@ -4,10 +4,16 @@ public class MessageVO {
 	
 	private int chat_id;
 	private int message_id;
+	private int member_id; //회원의 아이디pk랑 포린키연결
 	private String content;
-	private String time_stamp;
+	private String chat_time;
 	
-	
+	public int getMember_id() {
+		return member_id;
+	}
+	public void setMember_id(int member_id) {
+		this.member_id = member_id;
+	}
 	public int getChat_id() {
 		return chat_id;
 	}
@@ -26,11 +32,11 @@ public class MessageVO {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public String getTime_stamp() {
-		return time_stamp;
+	public String getChat_time() {
+		return chat_time;
 	}
-	public void setTime_stamp(String time_stamp) {
-		this.time_stamp = time_stamp;
+	public void setChat_time(String chat_time) {
+		this.chat_time = chat_time;
 	}
 	
 	
