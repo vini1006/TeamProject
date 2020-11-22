@@ -2,6 +2,10 @@
  * 데이터베이스와 관련된 업무를 처리하고, 또는 중복되는 로직을 공통화시켜
  * 재사용성을 높이기 위한 클래스..
  * */
+
+/*
+ * 
+ */
 package utill;
 
 import java.sql.Connection;

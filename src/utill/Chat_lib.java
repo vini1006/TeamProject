@@ -34,10 +34,10 @@ public class Chat_lib {
 	Connection con;
 	MainApp mainApp;
 
-	public Chat_lib() {
+	public Chat_lib(MainApp mainApp) {
 		this.dbManager = new DBManager();
-		this.mainApp = new MainApp();
-		this.con = dbManager.connect();
+		this.mainApp = mainApp;
+		this.con = mainApp.con;
 	}
 	
 	
@@ -126,6 +126,7 @@ public class Chat_lib {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				System.out.println(label.getText());
+				
 			}
 		};
 
