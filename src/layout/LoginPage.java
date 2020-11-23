@@ -190,8 +190,6 @@ public class LoginPage extends JPanel {
            registForm.registShow();
             System.out.println("회원가입");
             loginHide();
-           
-            
          }
       });
       

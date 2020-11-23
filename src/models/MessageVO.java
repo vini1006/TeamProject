@@ -4,15 +4,15 @@ public class MessageVO {
 	
 	private int chat_id;
 	private int message_id;
-	private int member_id; //회원의 아이디pk랑 포린키연결
+	private int member_no; //회원의 nopk랑 포린키연결
 	private String content;
 	private String chat_time;
 	
-	public int getMember_id() {
-		return member_id;
+	public int getMember_no() {
+		return member_no;
 	}
-	public void setMember_id(int member_id) {
-		this.member_id = member_id;
+	public void setMember_no(int member_no) {
+		this.member_no = member_no;
 	}
 	public int getChat_id() {
 		return chat_id;

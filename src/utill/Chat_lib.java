@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -27,6 +26,7 @@ import javax.swing.border.LineBorder;
 import layout.MainApp;
 import models.ChatMemberVO;
 import models.ChatVO;
+import models.MessageVO;
 
 /*
  * 채팅 관련 메소드들 모아놓는 lib 클래스
@@ -136,6 +136,18 @@ public class Chat_lib {
 		Xbutton.setHorizontalAlignment(SwingConstants.RIGHT);
 		Xbutton.setFont(new Font("HY견고딕", Font.BOLD, 10));
 		Xbutton.setPreferredSize(new Dimension(30,15));
+		
+		MouseAdapter chat_m_adapt = new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(e.getSource() == e.getComponent()) {
+					System.out.println(label.getText());
+					setCurrentChatVO(label.getText());
+					loadChatPanel();
+				}
+			}
+		};
+		
 		mainApp.chatSmallLabels.add(label);
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
@@ -145,6 +157,7 @@ public class Chat_lib {
 		panel1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		panel1.setPreferredSize(new Dimension(220, 40));
 		panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		panel1.addMouseListener(chat_m_adapt);
 		Xbutton.addActionListener((e)->{
 			PreparedStatement pstmt = null;
 			panel.remove(Xbutton.getParent());
@@ -168,14 +181,6 @@ public class Chat_lib {
 				dbManager.close(pstmt);
 			}
 		});
-				
-		MouseAdapter chat_m_adapt = new MouseAdapter() {
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				System.out.println(label.getText());
-				loadChatPanel(label.getText());
-			}
-		};
 
 		if (mainApp.chatSmallPanels.size() <= 0) {
 			panel1.setBounds(0, 0, 240, 40);
@@ -185,22 +190,25 @@ public class Chat_lib {
 		}
 
 		mainApp.chatSmallPanels.add(panel1);
-		for (int i = 0; i < mainApp.chatSmallPanels.size(); i++) {
-			mainApp.chatSmallPanels.get(i).addMouseListener(chat_m_adapt);
-		}
 		panel.add(mainApp.chatSmallPanels.get(mainApp.chatSmallPanels.size() - 1));
 		panel.setPreferredSize(new Dimension(240, panel.getHeight() + 40));
 		panel.updateUI();
 		mainApp.p_west_south_chat.updateUI();
 	}
-
-	public void loadChatPanel(String title) {
+	
+	
+	//채팅패널 선택시 채팅창 센터에 띄우기.
+	
+	public void setCurrentChatVO(String title) {
+		mainApp.chatMemberVOList.clear();
+		mainApp.messageVOList.clear();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		String chat_title = title;
 		int chat_id = 0;
 		String sql_select_chat_id = "select chat_id from chat where chat_title = ?";
 		String sql_select_chat_member = "select * from chatmember where chat_id = ?";
+		String sql_select_message = "select * from message where chat_id = ?";
 		try {
 			pstmt = con.prepareStatement(sql_select_chat_id);
 			pstmt.setString(1, chat_title);
@@ -210,6 +218,7 @@ public class Chat_lib {
 			mainApp.frame.setTitle(title);
 			
 			pstmt = con.prepareStatement(sql_select_chat_member);
+			pstmt.setInt(1, chat_id);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				ChatMemberVO chatMemberVO = new ChatMemberVO();
@@ -218,11 +227,33 @@ public class Chat_lib {
 				chatMemberVO.setMember_no(rs.getInt("member_no"));
 				mainApp.chatMemberVOList.add(chatMemberVO);
 			}
+			
+			pstmt = con.prepareStatement(sql_select_message);
+			pstmt.setInt(1, chat_id);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				while(rs.next()) {
+					MessageVO messageVO = new MessageVO();
+					messageVO.setChat_id(chat_id);
+					messageVO.setMember_no(rs.getInt("member_no"));
+					messageVO.setMessage_id(rs.getInt("message_id"));
+					messageVO.setChat_time(rs.getString("chat_time"));
+					messageVO.setContent(rs.getString("content"));
+					mainApp.messageVOList.add(messageVO);
+				}
+			}else {
+				JOptionPane.showMessageDialog(mainApp.frame, "채팅 로그 없음.");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			dbManager.close(pstmt, rs);
 		}
+	}
+	
+	public void loadChatPanel() {
+		
+		
 	}
 
 	// 로그인 하고, mainApp의 현재 RegistMemberVO의member_no와모든 chatmember의 member_no 와 비교하여
@@ -240,7 +271,6 @@ public class Chat_lib {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 		return hasChat;
 	}
 
@@ -280,7 +310,7 @@ public class Chat_lib {
 						int x = mainApp.frame.getLocationOnScreen().x;
 						int y = mainApp.frame.getLocationOnScreen().y;
 						JCheckBox box = (JCheckBox) e.getItem();
-						mainApp.chatPopAddappendLabel(box.getText());
+						chatPopAddappendLabel(box.getText());
 						mainApp.popup_ch_add.hide();
 						mainApp.popup_ch_add = mainApp.popupFactory.getPopup(mainApp.frame, mainApp.p_chat_set_pop,
 								x + 415, y + 50);
@@ -309,4 +339,21 @@ public class Chat_lib {
 			});
 		}
 	}
+	
+	//채팅참여인원 체크박스 체크시, 선택한 인원이 오른쪽 패널에 붙게하는 메소드 
+	public void chatPopAddappendLabel(String name) {
+			mainApp.chat_settedMember.add(name);
+			JLabel selectedName = new JLabel(name);
+			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
+			selectedName.setPreferredSize(new Dimension(180, 30));
+			mainApp.chatPopAddLabels.add(selectedName);
+			mainApp.p_chat_set_pop_add_panel.add(selectedName);
+	}
+	
+	
+	
+	
+	
+	
+	
 }

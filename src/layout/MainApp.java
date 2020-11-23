@@ -77,7 +77,7 @@ public class MainApp {
 	public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
 	public ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
 	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>(); //아마 안쓸듯..
-	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>();
+	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>(); //아마 안쓸듯..
 	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
 	public ArrayList<JCheckBox> chatCheckBoxList = new ArrayList<JCheckBox>();
 	
@@ -216,18 +216,6 @@ public class MainApp {
 	* ====================================================
 	---------------------------------------------------*/
 
-	/*---------------------------------------------------
-	* 채팅 pop add 참여인원 라벨추가 메소드
-	---------------------------------------------------*/
-	public void chatPopAddappendLabel(String name) {
-//		if (chatPopAddLabels.size() == 0) {
-			chat_settedMember.add(name);
-			JLabel selectedName = new JLabel(name);
-			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
-			selectedName.setPreferredSize(new Dimension(180, 30));
-			chatPopAddLabels.add(selectedName);
-			p_chat_set_pop_add_panel.add(selectedName);
-	}
 
 	/*---------------------------------------------
 	* 채팅 pop add 참여인원 라벨추가 메소드 끝
@@ -614,13 +602,13 @@ public class MainApp {
 
 		p_chat_set_pop_add_container = new JPanel();
 		p_chat_set_pop_add_container.setBounds(0, 0, 180, 405);
-		p_chat_set_pop_add_container.setBackground(new Color(50, 50, 50, 180));
+		p_chat_set_pop_add_container.setBackground(new Color(50, 50, 50));
 
 		p_chat_set_pop_add_container.setLayout(new BorderLayout(0, 0));
 
 		p_chat_set_pop_add_panel = new JPanel();
 		p_chat_set_pop_add_panel.setPreferredSize(new Dimension(180, 405));
-		p_chat_set_pop_add_panel.setBackground(new Color(50, 50, 50, 180));
+		p_chat_set_pop_add_panel.setBackground(new Color(50, 50, 50));
 
 		p_chat_pop_add_scrolls = new JScrollPane(p_chat_set_pop_add_panel);
 		p_chat_pop_add_scrolls.setBackground(new Color(50, 50, 50, 180));
@@ -860,6 +848,11 @@ public class MainApp {
 		JTextArea textArea = new JTextArea();
 		textArea.setBounds(69, 14, 865, 116);
 		p_center_south.add(textArea);
+		
+		JPanel p_center_center = new JPanel();
+		p_center_center.setBackground(Color.GRAY);
+		p_center.add(p_center_center, BorderLayout.CENTER);
+		System.out.println(p_center_center.getWidth() +" 그리고 "+ p_center_center.getHeight());
 
 		/*-------------------------------------------------------------------------------
 		 * 가운데 채팅 패널 설정! 
