@@ -16,6 +16,9 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import java.awt.Cursor;
 import java.awt.ComponentOrientation;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
+import java.awt.SystemColor;
 
 public class ChatPanel {
 
@@ -70,7 +73,7 @@ public class ChatPanel {
 		JLabel p_north_chat_title = new JLabel("New label");
 		p_north_chat_title.setForeground(Color.WHITE);
 		p_north_chat_title.setHorizontalAlignment(SwingConstants.CENTER);
-		p_north_chat_title.setFont(new Font("굴림", Font.PLAIN, 25));
+		p_north_chat_title.setFont(new Font("HY견고딕", Font.PLAIN, 25));
 		p_north_chat_title.setPreferredSize(new Dimension(300, 15));
 		p_north.add(p_north_chat_title, BorderLayout.WEST);
 		
@@ -81,12 +84,14 @@ public class ChatPanel {
 		p_north.add(p_north_chat_member_panel, BorderLayout.CENTER);
 		
 		JLabel chatMember_name_label = new JLabel("KIM");
+		chatMember_name_label.setFont(new Font("HY견고딕", Font.PLAIN, 12));
 		chatMember_name_label.setForeground(Color.WHITE);
 		chatMember_name_label.setPreferredSize(new Dimension(55, 60));
 		p_north_chat_member_panel.add(chatMember_name_label);
 		
 		
 		JPanel p_chat = new JPanel();
+		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
 		
 		JScrollPane scrollPane = new JScrollPane(p_chat);
@@ -107,13 +112,13 @@ public class ChatPanel {
 		JLabel myNameLabel = new JLabel("윤빈");
 		myNameLabel.setForeground(Color.WHITE);
 		myNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		myNameLabel.setFont(new Font("굴림", Font.BOLD, 19));
+		myNameLabel.setFont(new Font("HY견고딕", Font.BOLD, 19));
 		myNameLabel.setBounds(57, 0, 53, 40);
 		myUserPanel.add(myNameLabel);
 		
 		myRankLabel = new JLabel("노예");
 		myRankLabel.setForeground(Color.WHITE);
-		myRankLabel.setFont(new Font("굴림", Font.PLAIN, 15));
+		myRankLabel.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		myRankLabel.setBounds(104, 8, 53, 29);
 		myUserPanel.add(myRankLabel);
 		
@@ -126,7 +131,7 @@ public class ChatPanel {
 		otherUserPanel.setLayout(null);
 		otherUserPanel.setBorder(null);
 		otherUserPanel.setBackground(Color.DARK_GRAY);
-		otherUserPanel.setBounds(706, 91, 180, 78);
+		otherUserPanel.setBounds(706, 109, 180, 78);
 		p_chat.add(otherUserPanel);
 		
 		JLabel otherImagLabel = new JLabel("");
@@ -137,13 +142,13 @@ public class ChatPanel {
 		JLabel otherNameLabel = new JLabel("윤빈");
 		otherNameLabel.setForeground(Color.WHITE);
 		otherNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		otherNameLabel.setFont(new Font("굴림", Font.BOLD, 19));
+		otherNameLabel.setFont(new Font("HY견고딕", Font.BOLD, 19));
 		otherNameLabel.setBounds(12, 0, 53, 40);
 		otherUserPanel.add(otherNameLabel);
 		
 		JLabel otherRankLabel = new JLabel("노예");
 		otherRankLabel.setForeground(Color.WHITE);
-		otherRankLabel.setFont(new Font("굴림", Font.PLAIN, 15));
+		otherRankLabel.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		otherRankLabel.setBounds(57, 8, 53, 29);
 		otherUserPanel.add(otherRankLabel);
 		
@@ -153,16 +158,31 @@ public class ChatPanel {
 		otherUserPanel.add(otherChatTimeLabel);
 		
 		JTextArea chatTextArea = new JTextArea();
+		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
+		chatTextArea.setForeground(Color.WHITE);
 		chatTextArea.setAlignmentX(3.0f);
 		chatTextArea.setAlignmentY(3.0f);
-		chatTextArea.setBackground(Color.DARK_GRAY);
+		chatTextArea.setBackground(SystemColor.activeCaption);
 		chatTextArea.setEditable(false);
 		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		chatTextArea.setBorder(null);
+		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
 		chatTextArea.setLineWrap(true);
-		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
+		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
 		chatTextArea.setBounds(204, 10, 483, 78);
 		p_chat.add(chatTextArea);
+		
+		JTextArea chatTextArea_1 = new JTextArea();
+		chatTextArea_1.setText("조용히좀 하세요.");
+		chatTextArea_1.setLineWrap(true);
+		chatTextArea_1.setForeground(Color.WHITE);
+		chatTextArea_1.setFont(new Font("HY견고딕", Font.PLAIN, 16));
+		chatTextArea_1.setEditable(false);
+		chatTextArea_1.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
+		chatTextArea_1.setBackground(SystemColor.activeCaption);
+		chatTextArea_1.setAlignmentY(3.0f);
+		chatTextArea_1.setAlignmentX(3.0f);
+		chatTextArea_1.setBounds(204, 109, 483, 78);
+		p_chat.add(chatTextArea_1);
 		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 		
 	}
