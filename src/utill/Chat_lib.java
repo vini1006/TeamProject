@@ -134,15 +134,16 @@ public class Chat_lib {
 		label.setHorizontalAlignment(SwingConstants.LEFT);
 		label.setFont(font);
 		Xbutton.setHorizontalAlignment(SwingConstants.RIGHT);
-		Xbutton.setFont(font);
+		Xbutton.setFont(new Font("HY견고딕", Font.BOLD, 10));
+		Xbutton.setPreferredSize(new Dimension(30,15));
 		mainApp.chatSmallLabels.add(label);
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BorderLayout());
 		panel1.add(mainApp.chatSmallLabels.get(mainApp.chatSmallLabels.size() - 1),BorderLayout.CENTER);
 		panel1.add(Xbutton,BorderLayout.EAST);
-		panel1.setBackground(new Color(0, 0, 0, 60));
+		panel1.setBackground(new Color(64, 64, 64, 60));
 		panel1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		panel1.setPreferredSize(new Dimension(180, 40));
+		panel1.setPreferredSize(new Dimension(220, 40));
 		panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		Xbutton.addActionListener((e)->{
 			PreparedStatement pstmt = null;
@@ -266,11 +267,11 @@ public class Chat_lib {
 		}
 
 		for (int i = 0; i < nameList.size(); i++) {
-			JCheckBox checkBoxUser = new JCheckBox(nameList.get(i));
+			JCheckBox checkBoxUser = new JCheckBox(nameList.get(i), false);
 			checkBoxUser.setPreferredSize(new Dimension(160, 25));
 			checkBoxUser.setFont(new Font("HY견고딕", Font.PLAIN, 13));
 			checkBoxUser.setBackground(Color.GRAY);
-			
+			mainApp.chatCheckBoxList.add(checkBoxUser);
 			mainApp.p_chat_set_pop_checkPanel.add(checkBoxUser);
 			checkBoxUser.addItemListener(new ItemListener() {
 				@Override
@@ -285,7 +286,6 @@ public class Chat_lib {
 								x + 415, y + 50);
 						mainApp.popup_ch_add.show();
 						mainApp.p_chat_set_pop_add_panel.updateUI();
-						mainApp.p_chat_set_pop_add_panel.repaint();
 						mainApp.p_chat_set_pop_add_container.updateUI();
 					} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 						JCheckBox box = (JCheckBox) e.getItem();
@@ -297,16 +297,13 @@ public class Chat_lib {
 							if (box.getText().equals(label.getText())) {
 								mainApp.p_chat_set_pop_add_panel.remove(i);
 								mainApp.chatPopAddLabels.remove(i);
-							} else {
-
-							}
+							} 
 						}
-						mainApp.p_chat_set_pop_add_panel.updateUI();
-						mainApp.p_chat_set_pop_add_container.updateUI();
 						mainApp.popup_ch_add = mainApp.popupFactory.getPopup(mainApp.frame, mainApp.p_chat_set_pop,
 								x + 415, y + 50);
-						mainApp.p_chat_set_pop_add_panel.repaint();
 						mainApp.popup_ch_add.show();
+						mainApp.p_chat_set_pop_add_panel.updateUI();
+						mainApp.p_chat_set_pop_add_container.updateUI();
 					}
 				}
 			});

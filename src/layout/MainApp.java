@@ -9,10 +9,13 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.TextField;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -76,6 +79,7 @@ public class MainApp {
 	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>(); //아마 안쓸듯..
 	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>();
 	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
+	public ArrayList<JCheckBox> chatCheckBoxList = new ArrayList<JCheckBox>();
 	
 	JLabel default_label;
 	
@@ -191,7 +195,7 @@ public class MainApp {
 		panel1.setPreferredSize(new Dimension(240, 40));
 		panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		panel1.setLayout(null);
-
+		
 		if (boardPanels.size() <= 0) {
 			panel1.setBounds(0, 0, 240, 40);
 		} else {
@@ -316,21 +320,35 @@ public class MainApp {
 		JButton bt_chat = new JButton("+");
 		bt_chat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				int x = frame.getLocationOnScreen().x;
-				int y = frame.getLocationOnScreen().y;
+				for(int i=0; i<chatCheckBoxList.size();i++) {
+					p_chat_set_pop_checkPanel.remove(chatCheckBoxList.get(i));
+				}
+				chatCheckBoxList.clear();
+				chat_lib.createPopPanelCheckBox();
+				chat_settedMember.clear();
+				chatPopAddLabels.clear();
+				chatPopAddLabels.add(default_label = new JLabel(registMemberVO.getMember_name()));
+				chat_settedMember.add(default_label.getText());
+				System.out.println(chat_settedMember.size());
+				
 				if (c_pop == false) {
+					int x = frame.getLocationOnScreen().x;
+					int y = frame.getLocationOnScreen().y;
 					t_chat_pop_name.setText("");
+					
 					popup_ch = popupFactory.getPopup(frame, p_chat_set_pop_add_container, x + 650, y + 50);
 					popup_ch_add = popupFactory.getPopup(frame, p_chat_set_pop, x + 415, y + 50);
+					System.out.println(popup_ch);
+					System.out.println(p_chat_set_pop_add_container);
 					popup_ch.show();
+					System.out.println("나작동함");
 					popup_ch_add.show();
-					MainApp.c_pop = true;
+					c_pop = true;
 					
 				} else {
-					MainApp.c_pop = false;
 					popup_ch.hide();
 					popup_ch_add.hide();
+					c_pop = false;
 				}
 			}
 		});
@@ -550,13 +568,14 @@ public class MainApp {
 		bt_chat_pop_cancel.setBounds(29, 359, 91, 23);
 		p_chat_set_pop.add(bt_chat_pop_cancel);
 		bt_chat_pop_cancel.addActionListener((e) -> {
+			c_pop = false;
 			popup_ch.hide();
 			popup_ch_add.hide();
 			for (int i = 0; i < chatPopAddLabels.size(); i++) {
 				p_chat_set_pop_add_panel.remove(chatPopAddLabels.get(i));
 			}
 			chatPopAddLabels.clear();
-			c_pop = false;
+			chat_settedMember.clear();
 			t_chat_pop_name.setText("");
 		});
 
