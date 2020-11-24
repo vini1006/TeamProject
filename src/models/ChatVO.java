@@ -3,7 +3,7 @@ package models;
 public class ChatVO {
 	private int chat_id;
 	private String chat_title;
-	private char chat_status;
+	private String chat_status;
 	
 	
 	public int getChat_id() {
@@ -18,10 +18,10 @@ public class ChatVO {
 	public void setChat_title(String chat_title) {
 		this.chat_title = chat_title;
 	}
-	public char getChat_status() {
+	public String getChat_status() {
 		return chat_status;
 	}
-	public void setChat_status(char chat_status) {
+	public void setChat_status(String chat_status) {
 		this.chat_status = chat_status;
 	}
 	

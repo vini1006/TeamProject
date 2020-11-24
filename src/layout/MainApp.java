@@ -9,13 +9,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.TextField;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -45,6 +40,8 @@ import models.ChatMemberVO;
 import models.ChatVO;
 import models.MessageVO;
 import models.RegistMemberVO;
+import socket.MainAppChatSocket;
+import socket.MyServerSocket;
 import utill.Chat_lib;
 import utill.DBManager;
 
@@ -55,6 +52,8 @@ public class MainApp {
 	public JTextField t_chat_pop_name;
 	JTextField t_board_pop_name;
 	DBManager dbManager;
+	private JLabel myRankLabel;
+	public JPanel p_chat_container;
 
 	/*---------------------------------------------------------------
 	* 접속관련 변수
@@ -81,11 +80,27 @@ public class MainApp {
 	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
 	public ArrayList<JCheckBox> chatCheckBoxList = new ArrayList<JCheckBox>();
 	
-	JLabel default_label;
+	//채팅패널
+	public JPanel chat_panel;
+	public ChatPanel chatPanel;
+	public JPanel p_chat;
 	
+	//채팅요소들
+	public JTextArea chatTextArea;
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
+	---------------------------------------------------------------*/
+	
+	
+	/*---------------------------------------------------------------
+	* 채팅 소켓 관련 
+	---------------------------------------------------------------*/
+//	public MyServerThread mainAppChatThread;
+	public MainAppChatSocket mainAppChatSocket;
+	
+	/*---------------------------------------------------------------
+	* 채팅 소켓 관련 끝 
 	---------------------------------------------------------------*/
 	
 
@@ -101,6 +116,7 @@ public class MainApp {
 	JTextField t_searchField;
 	JPanel panel_search_pop_container;
 	JPanel p_east;
+	public JPanel p_center_center;
 	JPanel p_hamburger_pop_container;
 
 	public PopupFactory popupFactory;
@@ -121,6 +137,7 @@ public class MainApp {
 	private boolean HasSession = false;
 
 	JButton btnSearch;
+	public JLabel default_label;
 
 	/**
 	 * Launch the application.
@@ -143,7 +160,7 @@ public class MainApp {
 	 */
 	public MainApp() {
 		/*------------------------------------------------------
-		* 외부 클래스 new 하는곳 
+		* 외부 유틸 클래스 new 하는곳 
 		-----------------------------------------------------*/
 		dbManager = new DBManager();
 
@@ -154,9 +171,16 @@ public class MainApp {
 		/*------------------------------------------------------
 		채팅 관련 
 		-----------------------------------------------------*/
-
 		chatVO = new ChatVO();
 		chat_lib = new Chat_lib(this);
+		new MyServerSocket(this);
+		mainAppChatSocket = new MainAppChatSocket(this, chat_lib);
+		
+		/*------------------------------------------------------
+		 * 
+		-----------------------------------------------------*/
+		
+		
 		
 
 		initialize();
@@ -211,15 +235,6 @@ public class MainApp {
 		panel.updateUI();
 	}
 
-	/*---------------------------------------------------
-	* 채팅창 리스트 생성메서드 createChatList //chat_lib클래스로 옮김
-	* ====================================================
-	---------------------------------------------------*/
-
-
-	/*---------------------------------------------
-	* 채팅 pop add 참여인원 라벨추가 메소드 끝
-	---------------------------------------------*/
 
 	private void initialize() {
 
@@ -234,6 +249,16 @@ public class MainApp {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
+		
+		/*------------------------------------------
+		 * mainAppChatSocket 부착
+		 ----------------------------------------*/
+		
+		
+		
+		/*------------------------------------------
+		 * 
+		 ----------------------------------------*/
 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1280, 800);
@@ -276,6 +301,7 @@ public class MainApp {
 		panel.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		lblNewLabel_1.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\minizi.png"));
 		panel.add(lblNewLabel_1, BorderLayout.CENTER);
 
@@ -844,14 +870,27 @@ public class MainApp {
 		JButton btnNewButton = new JButton("+");
 		btnNewButton.setBounds(14, 12, 41, 27);
 		p_center_south.add(btnNewButton);
+		
 
 		JTextArea textArea = new JTextArea();
-		textArea.setBounds(69, 14, 865, 116);
+		textArea.setBounds(67, 13, 764, 116);
 		p_center_south.add(textArea);
 		
-		JPanel p_center_center = new JPanel();
+		JButton insertButton = new JButton("입력");
+		insertButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String msg = textArea.getText();
+				mainAppChatSocket.mainAppchatThread.send(msg);
+			}
+		});
+		insertButton.setBounds(843, 33, 101, 47);
+		p_center_south.add(insertButton);
+		
+		p_center_center = new JPanel();
 		p_center_center.setBackground(Color.GRAY);
+		p_center_center.setVisible(false);
 		p_center.add(p_center_center, BorderLayout.CENTER);
+		p_center_center.setLayout(new BorderLayout(0, 0));
 		System.out.println(p_center_center.getWidth() +" 그리고 "+ p_center_center.getHeight());
 
 		/*-------------------------------------------------------------------------------
@@ -859,5 +898,4 @@ public class MainApp {
 		 -------------------------------------------------------------------------------*/
 
 	}
-
 }
