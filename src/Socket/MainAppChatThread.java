@@ -15,7 +15,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 
 import layout.MainApp;
-import utill.Chat_lib;
+import models.MessageVO;
 
 
 
@@ -27,6 +27,14 @@ public class MainAppChatThread extends Thread{
 	BufferedWriter buffw;
 	boolean flag = true;
 	String sender;
+	
+	int chat_id;
+	String current_time;
+	int member_no;
+	String content;
+	int message_id;
+	
+	
 	
 
 	public MainAppChatThread(MainApp mainApp, Socket socket, MainAppChatSocket mainAppchatSocket) {
@@ -47,19 +55,29 @@ public class MainAppChatThread extends Thread{
 	
 	//서버가 보낸 메시지 듣기.
 	public void listen() {
-		String text = null;
-		String msg = null;
+		String line = null;
+		String[] text = new String[4];
+		
+	
 		while(flag) {
 			try {
-				text = buffr.readLine();
-				sender = text.split(",", 2)[0];
-				msg = text.split(",", 2)[1];
-				insertMyChat(msg);
+				line = buffr.readLine();
+				text = line.split(",", 5);
+				chat_id = Integer.parseInt(text[0]);
+				current_time = text[1];
+				member_no = Integer.parseInt(text[2]);
+				
+				message_id = Integer.parseInt(text[3]);
+				content = text[4];
+				
+				mainApp.messageVOList.add(setAmessageVO());
+				insertMyChat(content);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
+	
 	
 	//MainApp에서 채팅 칠시 send메소드 호출
 	//클라이언트의 소켓으로 전송
@@ -70,6 +88,17 @@ public class MainAppChatThread extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public MessageVO setAmessageVO() {
+		MessageVO messageVO = new MessageVO();
+		messageVO.setChat_id(chat_id);
+		messageVO.setChat_time(current_time);
+		messageVO.setMember_no(member_no);
+		messageVO.setContent(content);
+		messageVO.setMessage_id(message_id);
+		
+		return messageVO;
 	}
 	
 	public void insertMyChat(String msg){
@@ -98,7 +127,7 @@ public class MainAppChatThread extends Thread{
 			chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
 			chatTextArea.setLineWrap(true);
 			chatTextArea.setText(msg);
-			chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+20, 480, 80);
+			chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+40, 480, 80);
 			mainApp.p_chat.add(chatTextArea);
 			mainApp.p_center.updateUI();
 		}

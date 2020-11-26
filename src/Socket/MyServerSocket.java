@@ -14,20 +14,20 @@ import utill.DBManager;
 public class MyServerSocket {
 	MainApp mainApp;
 	DBManager dbManager;
+	private Connection con;
 	ServerSocket server;
 	Socket socket;
 	BufferedReader buffr;
 	BufferedWriter buffw;
 	String content;
 	ServerSocket serverSocket;
-	private Connection con;
-	
 	Thread thread; //접속자 감지용 쓰레드(server.accept())
 	ArrayList<MyServerThread> threadList = new ArrayList<MyServerThread>();
 	
 	
-	public MyServerSocket(MainApp mainApp) {
-		this.mainApp = mainApp;
+	public MyServerSocket() {
+		dbManager = new DBManager();
+		this.con = dbManager.connect();
 		thread = new Thread() {
 			@Override
 			public void run() {
@@ -45,9 +45,10 @@ public class MyServerSocket {
 			//서버는 여러명의 접속자를 감지해야 한다면, 각 접속자마다 비동기적으로 즉 독립적으로서
 			//상관없이 대화를 주고받는 주체는 쓰레드의 인스턴스로 처리하자
 			while(true) {
+				System.out.println("손님받기준비");
 				Socket socket = server.accept(); //접속자 감지와 동시에 대화용 소켓반환
 				//다수의 접속자 수 정보를 어딘가에 저장해놓자.
-				System.out.println("손님받는중");
+				System.out.println("손님받음");
 				
 				//대화용 쓰레드 생성, 소켓넘기기
 				MyServerThread myServerThread = new MyServerThread(this, socket,mainApp);
@@ -63,5 +64,7 @@ public class MyServerSocket {
 	public Connection getCon() {
 		return con;
 	}
-	
+	public static void main(String[] args) {
+		new MyServerSocket();
+	}
 }

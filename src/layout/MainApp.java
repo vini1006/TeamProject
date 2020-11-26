@@ -53,7 +53,6 @@ public class MainApp {
 	JTextField t_board_pop_name;
 	DBManager dbManager;
 	private JLabel myRankLabel;
-	public JPanel p_chat_container;
 
 	/*---------------------------------------------------------------
 	* 접속관련 변수
@@ -76,17 +75,21 @@ public class MainApp {
 	public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
 	public ArrayList<JLabel> chatSmallLabels = new ArrayList<JLabel>();
 	public ArrayList<ChatVO> chatVOList = new ArrayList<ChatVO>(); //아마 안쓸듯..
-	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>(); //아마 안쓸듯..
+	public ArrayList<MessageVO> messageVOList = new ArrayList<MessageVO>(); 
 	public ArrayList<ChatMemberVO> chatMemberVOList = new ArrayList<ChatMemberVO>();
 	public ArrayList<JCheckBox> chatCheckBoxList = new ArrayList<JCheckBox>();
 	
 	//채팅패널
+	public JPanel p_chat_container;
 	public JPanel chat_panel;
 	public ChatPanel chatPanel;
 	public JPanel p_chat;
 	
 	//채팅요소들
 	public JTextArea chatTextArea;
+	public boolean loadFlag = true;
+	public boolean isSocketConnected = false;
+	public JTextArea textArea;
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
@@ -173,8 +176,8 @@ public class MainApp {
 		-----------------------------------------------------*/
 		chatVO = new ChatVO();
 		chat_lib = new Chat_lib(this);
-		new MyServerSocket(this);
-		mainAppChatSocket = new MainAppChatSocket(this, chat_lib);
+//		new MyServerSocket(this);
+//		mainAppChatSocket = new MainAppChatSocket(this);
 		
 		/*------------------------------------------------------
 		 * 
@@ -872,7 +875,7 @@ public class MainApp {
 		p_center_south.add(btnNewButton);
 		
 
-		JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
 		textArea.setBounds(67, 13, 764, 116);
 		p_center_south.add(textArea);
 		
@@ -880,18 +883,20 @@ public class MainApp {
 		insertButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String msg = textArea.getText();
-				mainAppChatSocket.mainAppchatThread.send(msg);
+				textArea.getInputContext();
+				textArea.getLineCount();
+				String lineChangedText = chat_lib.seperateTextLine();
+				mainAppChatSocket.mainAppchatThread.send(lineChangedText);
 			}
 		});
 		insertButton.setBounds(843, 33, 101, 47);
 		p_center_south.add(insertButton);
 		
 		p_center_center = new JPanel();
-		p_center_center.setBackground(Color.GRAY);
-		p_center_center.setVisible(false);
+		p_center_center.setBackground(Color.DARK_GRAY);
+		p_center_center.setVisible(true);
 		p_center.add(p_center_center, BorderLayout.CENTER);
 		p_center_center.setLayout(new BorderLayout(0, 0));
-		System.out.println(p_center_center.getWidth() +" 그리고 "+ p_center_center.getHeight());
 
 		/*-------------------------------------------------------------------------------
 		 * 가운데 채팅 패널 설정! 

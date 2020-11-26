@@ -28,6 +28,10 @@ public class MyServerThread extends Thread {
 	String chat_id;
 	String message_id;
 	String member_no;
+	String current_time;
+	String current_messageId;
+	
+	public int cnt;
 
 	public MyServerThread(MyServerSocket myServerSocket, Socket socket,MainApp mainApp) {
 		this.myServerSocket = myServerSocket;
@@ -49,27 +53,22 @@ public class MyServerThread extends Thread {
 	public void listen() {
 		try {
 			String msg = null;
-			String clientInfo = null;
 			while(isAlive) {
-				if(checkClient) {
-					//처음 채팅을 킬때, 채팅창의 정보와 그사람의 정보가 넘어올것임
-					//chat_id, member_no
-					clientInfo = buffr.readLine();
-					System.out.println("첫정보 받는중 "+clientInfo);
-					String[] info = clientInfo.split(",");
-					chat_id = info[0];
-					member_no = info[1];
-					checkClient = false;
-				}else {
+				if(cnt == 0) {
+					getInfo();
+					System.out.println("난 채팅창 바꿀떄 한번만 나타나야해!");
+				}else if(cnt > 0) {
 					msg = buffr.readLine();
-					System.out.println("앙");
 					if(msg.equals("exit:931006")) {
 						myServerSocket.threadList.remove(this);
 //						isAlive = false;
-						System.out.println("채팅창 나감");
+						System.out.println("채팅창 나간데 ! msg : "+msg);
+					}else if(msg.equals("chatChanged:931006")) {
+						this.cnt = 0;
+						System.out.println("채팅창 바꾼데 ! msg : "+msg);
 					}else {
+						System.out.println("정상적으로 메시지 받는다 ! msg : "+msg);
 						dbWrite(msg);
-						System.out.println(msg);
 						send(msg);
 					}
 				}
@@ -78,6 +77,22 @@ public class MyServerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	public void getInfo() {
+		String clientInfo = null;
+		try {
+			clientInfo = buffr.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String[] info = clientInfo.split(",");
+		chat_id = info[0];
+		System.out.println("받은 채팅 pk는 : "+chat_id);
+		member_no = info[1];
+		System.out.println("받은 회원 pk는 : "+member_no);
+		checkClient = false;
+		cnt++;
+	}
 
 	public void dbWrite(String content) {
 
@@ -85,22 +100,32 @@ public class MyServerThread extends Thread {
 		ResultSet rs = null;
 		String sql = "insert into message(chat_id, message_id, content, chat_time, member_no)";
 		sql += " values(?, seq_message.nextval, ?, ?, ?)";
+		String sql_getCurrentId = "select max(message_id) as message_id from message";
 
 		SimpleDateFormat date_format = new SimpleDateFormat("MM월dd일 HH시mm분ss초");
-		String current_time = date_format.format(System.currentTimeMillis());
+		current_time = date_format.format(System.currentTimeMillis());
 
 		try {
-			pstmt = mainApp.con.prepareStatement(sql);
+			pstmt = myServerSocket.getCon().prepareStatement(sql);
 			pstmt.setString(1, chat_id);
+			System.out.println("받은 챗 아이디 : "+chat_id);
 			pstmt.setString(2, content);
+			System.out.println("받은 콘텐트 : "+content);
 			pstmt.setString(3, current_time);
+			System.out.println("받은 현재시간 : " + current_time);
 			pstmt.setString(4, member_no);
+			System.out.println("받은 회원pk : "+ member_no);
 			int isDone = pstmt.executeUpdate();
 			if (isDone == 0) {
-				JOptionPane.showMessageDialog(mainApp.frame, "입력실패!");
+				System.exit(0);
 			} else {
-				JOptionPane.showMessageDialog(mainApp.frame, "입력성공!");
 			}
+		
+			pstmt = myServerSocket.getCon().prepareStatement(sql_getCurrentId);
+			rs = pstmt.executeQuery();
+			rs.next();
+			current_messageId = rs.getString("message_id");
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +135,7 @@ public class MyServerThread extends Thread {
 		try {
 			for (int i = 0; i < myServerSocket.threadList.size(); i++) {
 				MyServerThread myServerThread = myServerSocket.threadList.get(i);
-				myServerThread.buffw.write(member_no + "," + msg + "\n");
+				myServerThread.buffw.write(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+msg + "\n");
 				myServerThread.buffw.flush();
 			}
 		} catch (IOException e) {

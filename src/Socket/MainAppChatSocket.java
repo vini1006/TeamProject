@@ -13,13 +13,11 @@ public class MainAppChatSocket {
 	public String ip = "localhost";
 	public MainAppChatThread mainAppchatThread;
 	public MainApp mainApp;
-	public Chat_lib chat_lib;
 	
 	//mainApp실행시 우선 접속
 	//후에 mainApp에서 채팅창 만들고. 채팅칠시 MainAppchatThread의 send 호출
 	
-	public MainAppChatSocket(MainApp mainApp, Chat_lib chat_lib) {
-		this.chat_lib = chat_lib;
+	public MainAppChatSocket(MainApp mainApp) {
 		this.mainApp = mainApp;
 		connect();
 	}

@@ -105,7 +105,6 @@ public class LoginPage extends JPanel {
     */
    private void initialize(DBManager dbManager) {
       
-      
       frame = new JFrame();
       frame.setResizable(false);
       frame.setBounds(100, 100, WIDTH, HEIGHT);
