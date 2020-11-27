@@ -13,6 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 
@@ -41,6 +45,7 @@ import models.ChatVO;
 import models.MessageVO;
 import models.RegistMemberVO;
 import socket.MainAppChatSocket;
+import socket.MainAppChatThread;
 import socket.MyServerSocket;
 import utill.Chat_lib;
 import utill.DBManager;
@@ -261,13 +266,23 @@ public class MainApp {
 		
 		
 		/*------------------------------------------
-		 * 
+		 * frame 종료시 리스너
 		 ----------------------------------------*/
 
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1280, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		popupFactory = new PopupFactory();
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				//서버뜨레드에서 연결종료
+				mainAppChatSocket.mainAppchatThread.send("exit:931006");
+				mainAppChatSocket.mainAppchatThread.flag = false;
+				System.exit(0);
+			}});
+		
+		
 
 		JPanel p_west = new JPanel();
 		p_west.setBackground(Color.YELLOW);

@@ -148,7 +148,7 @@ public class ChatPanel_design {
 		chatTextArea.setBackground(SystemColor.activeCaption);
 		chatTextArea.setEditable(false);
 		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
+		chatTextArea.setBorder(new LineBorder(new Color(192, 192, 192), 6, true));
 		chatTextArea.setLineWrap(true);
 		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
 		

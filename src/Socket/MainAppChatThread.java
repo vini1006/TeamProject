@@ -1,5 +1,6 @@
 package socket;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -28,7 +29,7 @@ public class MainAppChatThread extends Thread{
 	MainApp mainApp;
 	BufferedReader buffr;
 	BufferedWriter buffw;
-	boolean flag = true;
+	public boolean flag = true;
 	String sender;
 	MessageVO messageVO;
 	
@@ -86,7 +87,9 @@ public class MainAppChatThread extends Thread{
 					sb.append(decryptN[i]+"\n");
 				}
 				decryptNcontent = sb.toString(); 
-				insertMyChat(decryptNcontent);
+				if(decryptNcontent != null) {
+					insertMyChat(decryptNcontent);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -118,6 +121,8 @@ public class MainAppChatThread extends Thread{
 	public void insertMyChat(String msg){
 		JTextArea chatTextArea = new JTextArea();
 		ChatPanel panel = new ChatPanel();
+		JPanel aChatPanel = new JPanel();
+		aChatPanel.setLayout(new BorderLayout());
 		
 		chatTextArea = new JTextArea();
 		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
@@ -137,18 +142,22 @@ public class MainAppChatThread extends Thread{
 		userPanel.setBorder(null);
 		userPanel.setBackground(Color.DARK_GRAY);
 		userPanel.setLayout(null);
-		userPanel.add(mainApp.chatPanel.myImagLabel);
 		
 		if(mainApp.getRegistMemberVO().getMember_no() == messageVO.getMember_no() ) {
 			userPanel.setBounds(0, 0, 157, 78);
+			userPanel.setPreferredSize(new Dimension(157,78));
 			chatTextArea.setBounds(185, 0, 480, chatTextAreaHeight);
+			aChatPanel.add(userPanel, BorderLayout.WEST);
+			chatTextArea.setBackground(new Color(62, 179, 181));
 		}else {
 			panel.myChatTimeLabel.setBounds(12, 26, 74, 29);
 			panel.myRankLabel.setBounds(57, 8, 53, 29);
 			panel.myNameLabel.setBounds(12, 0, 53, 40);
-			panel.myImagLabel.setBounds(132, 0, 48, 79);
+			panel.myImagLabel.setBounds(100, 0, 48, 79);
 			userPanel.setBounds(694, 0, 157, 78);
+			userPanel.setPreferredSize(new Dimension(157,78));
 			chatTextArea.setBounds(230, 0, 480, chatTextAreaHeight);
+			aChatPanel.add(userPanel, BorderLayout.EAST);
 		}
 		panel.myChatTimeLabel.setText(messageVO.getChat_time());
 		panel.myNameLabel.setText(current_MemberName);
@@ -157,15 +166,13 @@ public class MainAppChatThread extends Thread{
 		userPanel.add(panel.myRankLabel);
 		userPanel.add(panel.myNameLabel);
 		
-		JPanel aChatPanel = new JPanel();
 		aChatPanel.setPreferredSize(new Dimension(875, chatTextAreaHeight+30));
 		aChatPanel.setBorder(null);
-		aChatPanel.setLayout(null);
 		aChatPanel.setBackground(Color.DARK_GRAY);
 		aChatPanel.add(chatTextArea);
 		aChatPanel.add(userPanel);
 		
-		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*150));
+		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*100));
 		mainApp.p_chat.add(aChatPanel);
 		System.out.println(mainApp.p_chat.getComponentCount());
 		mainApp.p_chat.updateUI();

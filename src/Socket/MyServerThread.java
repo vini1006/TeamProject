@@ -62,7 +62,7 @@ public class MyServerThread extends Thread {
 					msg = buffr.readLine();
 					if(msg.equals("exit:931006")) {
 						myServerSocket.threadList.remove(this);
-//						isAlive = false;
+						isAlive = false;
 						System.out.println("채팅창 나간데 ! msg : "+msg);
 					}else if(msg.equals("chatChanged:931006")) {
 						this.cnt = 0;
@@ -93,8 +93,7 @@ public class MyServerThread extends Thread {
 		System.out.println("받은 회원 pk는 : "+member_no);
 		current_memberName = info[2];
 		System.out.println("받은 회원 이름은 : "+current_memberName);
-		checkClient = false;
-		cnt++;
+		this.cnt = 1;
 	}
 
 	public void dbWrite(String content) {

@@ -2,25 +2,21 @@ package layout;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.SystemColor;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import java.awt.Cursor;
-import java.awt.ComponentOrientation;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import java.awt.SystemColor;
 
 public class ChatPanel {
 
@@ -77,9 +73,11 @@ public class ChatPanel {
 		
 		
 		p_chat = new JPanel();
-		p_chat.setPreferredSize(new Dimension(875, 5000000));
+		p_chat.setMaximumSize(new Dimension(875, 5000000));
 		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
+		p_chat.setLayout(new FlowLayout(FlowLayout.LEFT, 40,40));
+		
 		
 		aChat_panel = new JPanel();
 		aChat_panel.setPreferredSize(new Dimension(875, 150));
@@ -92,7 +90,7 @@ public class ChatPanel {
 		//aChat_panel.add(myUserPanel);
 		myUserPanel.setBorder(null);
 		myUserPanel.setBackground(Color.DARK_GRAY);
-		myUserPanel.setLayout(null);
+		myUserPanel.setLayout(new BorderLayout());
 		
 		myImagLabel = new JLabel("");
 		myImagLabel.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\chat_human.png"));
@@ -128,7 +126,7 @@ public class ChatPanel {
 		chatTextArea.setBackground(SystemColor.activeCaption);
 		chatTextArea.setEditable(false);
 		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
+		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 6, true));
 		chatTextArea.setLineWrap(true);
 		chatTextArea.setText("채팅들어감");
 		/*
