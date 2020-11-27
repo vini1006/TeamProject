@@ -314,6 +314,7 @@ public class LoginPage extends JPanel {
             	pstmt = con.prepareStatement(sql_chat_id);
             	pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
             	rs = pstmt.executeQuery();
+            	
             	while(rs.next()) {
             		chat_id_list.add(rs.getInt("chat_id"));
             	}
@@ -328,7 +329,6 @@ public class LoginPage extends JPanel {
             			chat_lib.createChatList(mainApp.p_chat_south_center, title, 15);
             		}
             	}
-            	
             	loginHide();
             	mainApp.frame.setVisible(true);
             	mainApp.la_userName.setText(mainApp.getRegistMemberVO().getMember_id());

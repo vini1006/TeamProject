@@ -634,7 +634,9 @@ public class MainApp {
 			 --------------------------------------------*/
 				Object obj = e.getSource();
 				if (obj == bt_chat_pop_ok) {
+					
 					chat_lib.createChatList(p_chat_south_center, t_chat_pop_name.getText(), 15);
+//					mainAppChatSocket.mainAppchatThread.send("#newChat:931006");
 					popup_ch.hide();
 					popup_ch_add.hide();
 					for (int i = 0; i < chatPopAddLabels.size(); i++) {
@@ -903,6 +905,9 @@ public class MainApp {
 		JButton insertButton = new JButton("입력");
 		insertButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				if(messageVOList.size()==0) {
+					mainAppChatSocket.mainAppchatThread.send("#newChat:931006");
+				}
 				String msg = chattextArea.getText();
 				chattextArea.getInputContext();
 				chattextArea.getLineCount();

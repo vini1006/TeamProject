@@ -84,39 +84,42 @@ public class MainAppChatThread extends Thread{
 				message_id = Integer.parseInt(text[3]);
 				memberName = text[4];
 				mainApp.gotChatMemberName = text[4];
+				mainApp.messageVO = setAmessageVO(); 
+				mainApp.messageVOList.add(setAmessageVO());
 				content = text[5];
-				
-				
-				String[] decryptN = content.split("#n:931006");
-				if(decryptN[0].equals("#oneLeft:931006")) {
-					mainApp.chatPanel.p_north_chat_member_panel.removeAll();
-					JLabel membernameLabel = new JLabel("참여자가 없는 방입니다.");
-					membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
-					membernameLabel.setForeground(Color.WHITE);
-					membernameLabel.setPreferredSize(new Dimension(400, 60));
-					mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
-					mainApp.p_center.updateUI();
-				}else if(decryptN[0].equals("#outFromChat:931006")) {
-					JOptionPane.showMessageDialog(mainApp.frame, "누가나나가는거체킹되긴됨");
-					
-				}else {
-					mainApp.messageVOList.add(setAmessageVO());
-					String decryptNcontent = "";
-					StringBuffer sb = new StringBuffer();
-					for(int i =0; i<decryptN.length; i++) {
-						sb.append(decryptN[i]+"\n");
-					}
-					decryptNcontent = sb.toString(); 
-					if(decryptNcontent != null) {
-						insertMyChat(decryptNcontent);
-					}
+				if(mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
+					System.out.println("현재 메시지가 준 chat_id "+mainApp.messageVO.getChat_id());
+					System.out.println("현재 chat_id "+mainApp.chatVO.getChat_id());
+					String[] decryptN = content.split("#n:931006");
+					if(decryptN[0].equals("#oneLeft:931006")) {
+						mainApp.chatPanel.p_north_chat_member_panel.removeAll();
+						JLabel membernameLabel = new JLabel("참여자가 없는 방입니다.");
+						membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
+						membernameLabel.setForeground(Color.WHITE);
+						membernameLabel.setPreferredSize(new Dimension(400, 60));
+						mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
+						mainApp.p_center.updateUI();
+					}else if(decryptN[0].equals("#outFromChat:931006")) {
+						JOptionPane.showMessageDialog(mainApp.frame, "누가나나가는거체킹되긴됨");
+					}else {
+						String decryptNcontent = "";
+						StringBuffer sb = new StringBuffer();
+						for(int i =0; i<decryptN.length; i++) {
+							sb.append(decryptN[i]+"\n");
+						}
+						decryptNcontent = sb.toString(); 
+						if(decryptNcontent != null) {
+							insertMyChat(decryptNcontent);
+						}
+					}	
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+
 	}
-	
+
 	//MainApp에서 채팅 칠시 send메소드 호출
 	//클라이언트의 소켓으로 전송
 	public void send(String msg) {
