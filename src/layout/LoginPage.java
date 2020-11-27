@@ -267,10 +267,7 @@ public class LoginPage extends JPanel {
       opaqPanel.setBounds(0, 0, 446, 512);
       c_panel.add(opaqPanel);
       opaqPanel.setLayout(null);
-      
-      
    
-      
    }
    public void login() {
       PreparedStatement pstmt=null;

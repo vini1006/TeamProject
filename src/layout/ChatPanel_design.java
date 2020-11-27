@@ -19,6 +19,7 @@ import java.awt.ComponentOrientation;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import java.awt.SystemColor;
+import javax.swing.ScrollPaneConstants;
 
 public class ChatPanel_design {
 
@@ -92,17 +93,26 @@ public class ChatPanel_design {
 		
 		
 		JPanel p_chat = new JPanel();
+		p_chat.setPreferredSize(new Dimension(800, 10));
 		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
 		
 		JScrollPane scrollPane = new JScrollPane(p_chat);
-		p_chat.setLayout(null);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		p_chat.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		JPanel aChat_panel = new JPanel();
+		aChat_panel.setPreferredSize(new Dimension(875, 100));
+		aChat_panel.setBorder(null);
+		aChat_panel.setBackground(Color.DARK_GRAY);
+		p_chat.add(aChat_panel);
+		aChat_panel.setLayout(null);
 		
 		JPanel myUserPanel = new JPanel();
+		myUserPanel.setBounds(0, 0, 157, 78);
+		aChat_panel.add(myUserPanel);
 		myUserPanel.setBorder(null);
 		myUserPanel.setBackground(Color.DARK_GRAY);
-		myUserPanel.setBounds(12, 10, 180, 78);
-		p_chat.add(myUserPanel);
 		myUserPanel.setLayout(null);
 		
 		JLabel myImagLabel = new JLabel("");
@@ -128,12 +138,26 @@ public class ChatPanel_design {
 		myChatTimeLabel.setBounds(60, 26, 74, 29);
 		myUserPanel.add(myChatTimeLabel);
 		
+		JTextArea chatTextArea = new JTextArea();
+		chatTextArea.setBounds(185, 0, 483, 78);
+		aChat_panel.add(chatTextArea);
+		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
+		chatTextArea.setForeground(Color.WHITE);
+		chatTextArea.setAlignmentX(3.0f);
+		chatTextArea.setAlignmentY(3.0f);
+		chatTextArea.setBackground(SystemColor.activeCaption);
+		chatTextArea.setEditable(false);
+		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
+		chatTextArea.setLineWrap(true);
+		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
+		
 		JPanel otherUserPanel = new JPanel();
+		otherUserPanel.setBounds(694, 0, 180, 78);
+		aChat_panel.add(otherUserPanel);
 		otherUserPanel.setLayout(null);
 		otherUserPanel.setBorder(null);
 		otherUserPanel.setBackground(Color.DARK_GRAY);
-		otherUserPanel.setBounds(706, 109, 180, 78);
-		p_chat.add(otherUserPanel);
 		
 		JLabel otherImagLabel = new JLabel("");
 		otherImagLabel.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\chat_human2.png"));
@@ -157,33 +181,6 @@ public class ChatPanel_design {
 		otherChatTimeLabel.setForeground(Color.WHITE);
 		otherChatTimeLabel.setBounds(12, 26, 74, 29);
 		otherUserPanel.add(otherChatTimeLabel);
-		
-		JTextArea chatTextArea = new JTextArea();
-		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		chatTextArea.setForeground(Color.WHITE);
-		chatTextArea.setAlignmentX(3.0f);
-		chatTextArea.setAlignmentY(3.0f);
-		chatTextArea.setBackground(SystemColor.activeCaption);
-		chatTextArea.setEditable(false);
-		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
-		chatTextArea.setLineWrap(true);
-		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
-		chatTextArea.setBounds(204, 10, 483, 78);
-		p_chat.add(chatTextArea);
-		
-		JTextArea chatTextArea_1 = new JTextArea();
-		chatTextArea_1.setText("조용히좀 하세요.");
-		chatTextArea_1.setLineWrap(true);
-		chatTextArea_1.setForeground(Color.WHITE);
-		chatTextArea_1.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		chatTextArea_1.setEditable(false);
-		chatTextArea_1.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
-		chatTextArea_1.setBackground(SystemColor.activeCaption);
-		chatTextArea_1.setAlignmentY(3.0f);
-		chatTextArea_1.setAlignmentX(3.0f);
-		chatTextArea_1.setBounds(204, 109, 483, 78);
-		p_chat.add(chatTextArea_1);
 		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 		
 	}

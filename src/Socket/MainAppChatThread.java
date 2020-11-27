@@ -58,6 +58,7 @@ public class MainAppChatThread extends Thread{
 		String line = null;
 		String[] text = new String[4];
 		
+		
 	
 		while(flag) {
 			try {
@@ -69,9 +70,16 @@ public class MainAppChatThread extends Thread{
 				
 				message_id = Integer.parseInt(text[3]);
 				content = text[4];
-				
 				mainApp.messageVOList.add(setAmessageVO());
-				insertMyChat(content);
+				
+				String[] decryptN = content.split("#n:931006");
+				String decryptNcontent = "";
+				StringBuffer sb = new StringBuffer();
+				for(int i =0; i<decryptN.length; i++) {
+					sb.append(decryptN[i]+"\n");
+				}
+				decryptNcontent = sb.toString(); 
+				insertMyChat(decryptNcontent);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -103,34 +111,28 @@ public class MainAppChatThread extends Thread{
 	
 	public void insertMyChat(String msg){
 		JTextArea chatTextArea = new JTextArea();
-		if(mainApp.messageVOList.size() <= 0) {
-			chatTextArea = new JTextArea();
-			chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-			chatTextArea.setForeground(Color.WHITE);
-			chatTextArea.setBackground(SystemColor.activeCaption);
-			chatTextArea.setEditable(false);
-			chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
-			chatTextArea.setLineWrap(true);
-			chatTextArea.setText(msg);
-			chatTextArea.setBounds(200, 10, 480, 80);
-			mainApp.p_chat.add(chatTextArea);
-			mainApp.p_center.updateUI();
-			
-		}else {
-			chatTextArea = new JTextArea();
-			chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-			chatTextArea.setForeground(Color.WHITE);
-			chatTextArea.setBackground(SystemColor.activeCaption);
-			chatTextArea.setEditable(false);
-			chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
-			chatTextArea.setLineWrap(true);
-			chatTextArea.setText(msg);
-			chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+40, 480, 80);
-			mainApp.p_chat.add(chatTextArea);
-			mainApp.p_center.updateUI();
+		chatTextArea = new JTextArea();
+		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
+		chatTextArea.setForeground(Color.WHITE);
+		chatTextArea.setBackground(SystemColor.activeCaption);
+		chatTextArea.setEditable(false);
+		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 8, true));
+		chatTextArea.setLineWrap(true);
+		chatTextArea.setText(msg);
+		String[] msgLine = msg.split("\n");
+		int lineCount = msgLine.length;
+		
+		if(mainApp.messageVOList.size() <= 1) {
+			chatTextArea.setBounds(200, 10, 480, 35*lineCount);
+		}else if(mainApp.messageVOList.size() > 1) {
+			//chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+40, 480, 40*lineCount);
+			int prevPanel = mainApp.messageVOList.size()-1;
+			chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+40, 480, 35*lineCount);
 		}
-	}
+		mainApp.p_chat.add(chatTextArea);
+		mainApp.p_chat.updateUI();
+		mainApp.p_center.updateUI();
+		}
 	
 }

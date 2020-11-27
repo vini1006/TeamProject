@@ -41,6 +41,7 @@ public class ChatPanel {
 	public JLabel myImagLabel;
 	public JLabel otherImagLabel;
 	public JScrollPane scrollPane;
+	public JPanel aChat_panel;
 	
 	public ChatPanel() {
 		p_chat_container = new JPanel();
@@ -75,61 +76,51 @@ public class ChatPanel {
 		
 		
 		p_chat = new JPanel();
+		p_chat.setPreferredSize(new Dimension(800, 10));
 		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
 		p_chat.setLayout(null);
 		
+		aChat_panel = new JPanel();
+		aChat_panel.setPreferredSize(new Dimension(875, 100));
+		aChat_panel.setBorder(null);
+		aChat_panel.setBackground(Color.DARK_GRAY);
+		p_chat.add(aChat_panel);
+		aChat_panel.setLayout(null);
+		
 		myUserPanel = new JPanel();
+		myUserPanel.setBounds(0, 0, 157, 78);
+		aChat_panel.add(myUserPanel);
 		myUserPanel.setBorder(null);
 		myUserPanel.setBackground(Color.DARK_GRAY);
-		myUserPanel.setBounds(12, 10, 180, 78);
 		myUserPanel.setLayout(null);
 		
 		myImagLabel = new JLabel("");
 		myImagLabel.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\chat_human.png"));
 		myImagLabel.setBounds(0, 0, 48, 78);
+		myUserPanel.add(myImagLabel);
 		
 		myNameLabel = new JLabel("윤빈");
 		myNameLabel.setForeground(Color.WHITE);
 		myNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		myNameLabel.setFont(new Font("HY견고딕", Font.BOLD, 19));
 		myNameLabel.setBounds(57, 0, 53, 40);
+		myUserPanel.add(myNameLabel);
 		
 		myRankLabel = new JLabel("노예");
 		myRankLabel.setForeground(Color.WHITE);
 		myRankLabel.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		myRankLabel.setBounds(104, 8, 53, 29);
+		myUserPanel.add(myRankLabel);
 		
 		myChatTimeLabel = new JLabel("12:12 pm");
 		myChatTimeLabel.setForeground(Color.WHITE);
 		myChatTimeLabel.setBounds(60, 26, 74, 29);
-		
-		otherUserPanel = new JPanel();
-		otherUserPanel.setLayout(null);
-		otherUserPanel.setBorder(null);
-		otherUserPanel.setBackground(Color.DARK_GRAY);
-		otherUserPanel.setBounds(706, 109, 180, 78);
-		
-		otherImagLabel = new JLabel("");
-		otherImagLabel.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\chat_human2.png"));
-		otherImagLabel.setBounds(132, 0, 48, 79);
-		
-		otherNameLabel = new JLabel("윤빈");
-		otherNameLabel.setForeground(Color.WHITE);
-		otherNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		otherNameLabel.setFont(new Font("HY견고딕", Font.BOLD, 19));
-		otherNameLabel.setBounds(12, 0, 53, 40);
-		
-		otherRankLabel = new JLabel("노예");
-		otherRankLabel.setForeground(Color.WHITE);
-		otherRankLabel.setFont(new Font("HY견고딕", Font.PLAIN, 15));
-		otherRankLabel.setBounds(57, 8, 53, 29);
-		
-		otherChatTimeLabel = new JLabel("12:12 pm");
-		otherChatTimeLabel.setForeground(Color.WHITE);
-		otherChatTimeLabel.setBounds(12, 26, 74, 29);
+		myUserPanel.add(myChatTimeLabel);
 		
 		chatTextArea = new JTextArea();
+		chatTextArea.setBounds(185, 0, 483, 78);
+		aChat_panel.add(chatTextArea);
 		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
 		chatTextArea.setForeground(Color.WHITE);
 		chatTextArea.setAlignmentX(3.0f);
@@ -140,20 +131,37 @@ public class ChatPanel {
 		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
 		chatTextArea.setLineWrap(true);
 		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
-		chatTextArea.setBounds(204, 10, 483, 78);
-		/*
-		chatTextArea_1 = new JTextArea();
-		chatTextArea_1.setText("조용히좀 하세요.");
-		chatTextArea_1.setLineWrap(true);
-		chatTextArea_1.setForeground(Color.WHITE);
-		chatTextArea_1.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		chatTextArea_1.setEditable(false);
-		chatTextArea_1.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
-		chatTextArea_1.setBackground(SystemColor.activeCaption);
-		chatTextArea_1.setAlignmentY(3.0f);
-		chatTextArea_1.setAlignmentX(3.0f);
-		chatTextArea_1.setBounds(204, 109, 483, 78);
-		*/
+		
+		otherUserPanel = new JPanel();
+		otherUserPanel.setBounds(694, 0, 180, 78);
+		aChat_panel.add(otherUserPanel);
+		otherUserPanel.setLayout(null);
+		otherUserPanel.setBorder(null);
+		otherUserPanel.setBackground(Color.DARK_GRAY);
+		
+		otherImagLabel = new JLabel("");
+		otherImagLabel.setIcon(new ImageIcon("C:\\workspace\\Java_workspace\\TeamProject\\src\\res\\chat_human2.png"));
+		otherImagLabel.setBounds(132, 0, 48, 79);
+		otherUserPanel.add(otherImagLabel);
+		
+		otherNameLabel = new JLabel("윤빈");
+		otherNameLabel.setForeground(Color.WHITE);
+		otherNameLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		otherNameLabel.setFont(new Font("HY견고딕", Font.BOLD, 19));
+		otherNameLabel.setBounds(12, 0, 53, 40);
+		otherUserPanel.add(otherNameLabel);
+		
+		otherRankLabel = new JLabel("노예");
+		otherRankLabel.setForeground(Color.WHITE);
+		otherRankLabel.setFont(new Font("HY견고딕", Font.PLAIN, 15));
+		otherRankLabel.setBounds(57, 8, 53, 29);
+		otherUserPanel.add(otherRankLabel);
+		
+		otherChatTimeLabel = new JLabel("12:12 pm");
+		otherChatTimeLabel.setForeground(Color.WHITE);
+		otherChatTimeLabel.setBounds(12, 26, 74, 29);
+		otherUserPanel.add(otherChatTimeLabel);
+		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 	}
 	
 	public JPanel getChatPanel() {
@@ -163,14 +171,18 @@ public class ChatPanel {
 		p_north.add(p_north_chat_title, BorderLayout.WEST);
 		p_north.add(p_north_chat_member_panel, BorderLayout.CENTER);
 		scrollPane = new JScrollPane(p_chat);
-		//p_north_chat_member_panel.add(chatMember_name_label);
+		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 		/*
-		p_chat.add(myUserPanel);
 		myUserPanel.add(myImagLabel);
 		myUserPanel.add(myNameLabel);
 		myUserPanel.add(myRankLabel);
 		myUserPanel.add(myChatTimeLabel);
 		p_chat.add(otherUserPanel);
+		*/
+		
+		//p_north_chat_member_panel.add(chatMember_name_label);
+		/*
+		p_chat.add(myUserPanel);
 		otherUserPanel.add(otherImagLabel);
 		otherUserPanel.add(otherNameLabel);
 		otherUserPanel.add(otherRankLabel);
@@ -178,7 +190,6 @@ public class ChatPanel {
 		p_chat.add(chatTextArea);
 		p_chat.add(chatTextArea_1);
 		*/
-		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 		
 		return p_chat_container;
 	}
