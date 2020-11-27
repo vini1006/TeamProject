@@ -237,7 +237,10 @@ public class Chat_lib {
 				pstmt = con.prepareStatement(sql_setChatStatus);
 				pstmt.executeUpdate();
 			}else if(isChatMemberNull(chat_id) == 1) {
+				mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
 				mainApp.mainAppChatSocket.mainAppchatThread.send("#oneLeft:931006");
+			}else if(isChatMemberNull(chat_id) == 2) {
+				mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();

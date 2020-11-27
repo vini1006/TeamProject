@@ -12,8 +12,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -40,7 +45,7 @@ public class MainAppChatThread extends Thread{
 	int member_no;
 	String content;
 	int message_id;
-	String current_MemberName;
+	String memberName;
 	
 	
 	
@@ -77,10 +82,10 @@ public class MainAppChatThread extends Thread{
 				current_time = text[1];
 				member_no = Integer.parseInt(text[2]);
 				message_id = Integer.parseInt(text[3]);
-				current_MemberName = text[4];
+				memberName = text[4];
 				mainApp.gotChatMemberName = text[4];
 				content = text[5];
-				mainApp.messageVOList.add(setAmessageVO());
+				
 				
 				String[] decryptN = content.split("#n:931006");
 				if(decryptN[0].equals("#oneLeft:931006")) {
@@ -91,7 +96,11 @@ public class MainAppChatThread extends Thread{
 					membernameLabel.setPreferredSize(new Dimension(400, 60));
 					mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
 					mainApp.p_center.updateUI();
+				}else if(decryptN[0].equals("#outFromChat:931006")) {
+					JOptionPane.showMessageDialog(mainApp.frame, "누가나나가는거체킹되긴됨");
+					
 				}else {
+					mainApp.messageVOList.add(setAmessageVO());
 					String decryptNcontent = "";
 					StringBuffer sb = new StringBuffer();
 					for(int i =0; i<decryptN.length; i++) {
@@ -172,7 +181,7 @@ public class MainAppChatThread extends Thread{
 			aChatPanel.add(userPanel, BorderLayout.EAST);
 		}
 		panel.myChatTimeLabel.setText(messageVO.getChat_time());
-		panel.myNameLabel.setText(current_MemberName);
+		panel.myNameLabel.setText(memberName);
 		userPanel.add(panel.myImagLabel);
 		userPanel.add(panel.myChatTimeLabel);
 		userPanel.add(panel.myRankLabel);
@@ -200,5 +209,7 @@ public class MainAppChatThread extends Thread{
 		mainApp.p_chat.updateUI();
 		mainApp.p_center.updateUI();
 		}
+	
+	
 	
 }

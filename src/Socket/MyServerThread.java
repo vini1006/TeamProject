@@ -29,11 +29,14 @@ public class MyServerThread extends Thread {
 	boolean isAlive = true;
 	boolean checkClient = true;
 	String chat_id;
-	String message_id;
+	String message_id; 
 	String member_no;
 	String current_memberName;
-	String current_time;
-	String current_messageId;
+	
+	SimpleDateFormat date_format = new SimpleDateFormat("MM/dd HH:mm");
+	String current_time = date_format.format(System.currentTimeMillis());
+	
+	String current_messageId = "1"; //의미없는기본값.
 	
 	public int cnt;
 
@@ -66,6 +69,10 @@ public class MyServerThread extends Thread {
 						isAlive = false;
 						System.out.println("채팅창 나간데 ! msg : "+msg);
 					}else if(msg.equals("#oneLeft:931006")) {
+						getInfo(msg);
+						send(msg);
+					}else if(msg.equals("#outFromChat:931006")) {
+						getInfo(msg);
 						send(msg);
 					}else {
 						getInfo(msg);
@@ -80,6 +87,10 @@ public class MyServerThread extends Thread {
 					}else if(msg.equals("chatChanged:931006")) {
 						this.cnt = 0;
 						System.out.println("채팅창 바꾼데 ! msg : "+msg);
+					}else if(msg.equals("#oneLeft:931006")) {
+						send(msg);
+					}else if(msg.equals("#outFromChat:931006")) {
+						send(msg);
 					}else {
 						System.out.println("정상적으로 메시지 받는다 ! msg : "+msg);
 						dbWrite(msg);
@@ -111,8 +122,6 @@ public class MyServerThread extends Thread {
 		sql += " values(?, seq_message.nextval, ?, ?, ?)";
 		String sql_getCurrentId = "select max(message_id) as message_id from message";
 
-		SimpleDateFormat date_format = new SimpleDateFormat("MM/dd HH:mm");
-		current_time = date_format.format(System.currentTimeMillis());
 
 		try {
 			pstmt = myServerSocket.getCon().prepareStatement(sql);
@@ -145,6 +154,7 @@ public class MyServerThread extends Thread {
 			for (int i = 0; i < myServerSocket.threadList.size(); i++) {
 				MyServerThread myServerThread = myServerSocket.threadList.get(i);
 				myServerThread.buffw.write(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+current_memberName+","+msg + "\n");
+				System.out.println(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+current_memberName+","+msg + "\n");
 				myServerThread.buffw.flush();
 			}
 		} catch (IOException e) {
