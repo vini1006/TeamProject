@@ -301,6 +301,8 @@ public class LoginPage extends JPanel {
             registMemberVO.setMember_rank(rs.getString("member_rank"));
             
             mainApp.setRegistMemberVO(registMemberVO); //mainApp에 registMemberVO
+            
+            //채팅 ~~ 관련 ~~ //
             mainApp.default_label.setText(mainApp.getRegistMemberVO().getMember_name());
             mainApp.chat_settedMember.add(mainApp.default_label.getText());
             if(chat_lib.chatComparingUser()) {

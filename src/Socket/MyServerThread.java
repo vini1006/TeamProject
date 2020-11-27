@@ -56,8 +56,15 @@ public class MyServerThread extends Thread {
 			String msg = null;
 			while(isAlive) {
 				if(cnt == 0) {
-					getInfo();
-					System.out.println("난 채팅창 바꿀떄 한번만 나타나야해!");
+					msg = buffr.readLine();
+					if(msg.equals("exit:931006")){
+						myServerSocket.threadList.remove(this);
+						isAlive = false;
+						System.out.println("채팅창 나간데 ! msg : "+msg);
+					}else {
+						getInfo();
+						System.out.println("난 채팅창 바꿀떄 한번만 나타나야해!");
+					}
 				}else if(cnt > 0) {
 					msg = buffr.readLine();
 					if(msg.equals("exit:931006")) {

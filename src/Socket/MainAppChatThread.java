@@ -15,6 +15,7 @@ import java.net.Socket;
 
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import layout.ChatPanel;
@@ -172,12 +173,21 @@ public class MainAppChatThread extends Thread{
 		aChatPanel.add(chatTextArea);
 		aChatPanel.add(userPanel);
 		
-		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*100));
+		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*105));
 		mainApp.p_chat.add(aChatPanel);
-		System.out.println(mainApp.p_chat.getComponentCount());
+		int max = mainApp.chat_scroll.getVerticalScrollBar().getMaximum();
+		
+		Runnable doScroll = new Runnable() {
+		
+			public void run() {
+				mainApp.chat_scroll.getVerticalScrollBar().setValue(max);
+			}
+		};
+		SwingUtilities.invokeLater(doScroll);
+		
+		mainApp.chat_scroll.revalidate();
 		mainApp.p_chat.updateUI();
 		mainApp.p_center.updateUI();
-		System.out.println(mainApp.p_chat);
 		}
 	
 }

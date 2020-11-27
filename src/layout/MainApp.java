@@ -91,11 +91,12 @@ public class MainApp {
 	public JPanel p_chat;
 	
 	//채팅요소들
-	public JTextArea chatTextArea;
+	public JTextArea chatMessageArea;
 	public boolean loadFlag = true;
 	public boolean isSocketConnected = false;
-	public JTextArea textArea;
+	public JTextArea chattextArea;
 	public String gotChatMemberName;
+	public JScrollPane chat_scroll;
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
@@ -121,7 +122,7 @@ public class MainApp {
 	
 	JPanel p_west_south_chatList;
 	public JPanel p_west_south_chat;
-	JPanel p_chat_south_center;
+	public JPanel p_chat_south_center;
 	JTextField t_searchField;
 	JPanel panel_search_pop_container;
 	JPanel p_east;
@@ -147,6 +148,7 @@ public class MainApp {
 
 	JButton btnSearch;
 	public JLabel default_label;
+	public JPanel p_center_south;
 
 	/**
 	 * Launch the application.
@@ -277,8 +279,10 @@ public class MainApp {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				//서버뜨레드에서 연결종료
-				mainAppChatSocket.mainAppchatThread.send("exit:931006");
-				mainAppChatSocket.mainAppchatThread.flag = false;
+				if(loadFlag == false) {
+					mainAppChatSocket.mainAppchatThread.send("exit:931006");
+					mainAppChatSocket.mainAppchatThread.flag = false;
+				}
 				System.exit(0);
 			}});
 		
@@ -879,11 +883,11 @@ public class MainApp {
 		la_boardIssue.setBounds(37, 40, 659, 23);
 		p_center_north.add(la_boardIssue);
 
-		JPanel p_center_south = new JPanel();
+		p_center_south = new JPanel();
 		p_center_south.setBorder(new MatteBorder(0, 0, 0, 1, (Color) new Color(0, 0, 0)));
 		p_center_south.setPreferredSize(new Dimension(900, 180));
 		p_center_south.setBackground(new Color(64, 64, 64));
-		p_center.add(p_center_south, BorderLayout.SOUTH);
+//		p_center.add(p_center_south, BorderLayout.SOUTH);
 		p_center_south.setLayout(null);
 
 		JButton btnNewButton = new JButton("+");
@@ -891,19 +895,20 @@ public class MainApp {
 		p_center_south.add(btnNewButton);
 		
 
-		textArea = new JTextArea();
-		textArea.setBounds(67, 13, 764, 116);
-		p_center_south.add(textArea);
+		chattextArea = new JTextArea();
+		chattextArea.setBounds(67, 13, 764, 116);
+		chattextArea.setPreferredSize(new Dimension(770,115));
+		p_center_south.add(chattextArea);
 		
 		JButton insertButton = new JButton("입력");
 		insertButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String msg = textArea.getText();
-				textArea.getInputContext();
-				textArea.getLineCount();
+				String msg = chattextArea.getText();
+				chattextArea.getInputContext();
+				chattextArea.getLineCount();
 				String lineChangedText = chat_lib.seperateTextLine();
 				mainAppChatSocket.mainAppchatThread.send(lineChangedText);
-				textArea.setText("");
+				chattextArea.setText("");
 			}
 		});
 		insertButton.setBounds(843, 33, 101, 47);
