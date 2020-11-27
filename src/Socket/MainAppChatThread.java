@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -82,14 +83,24 @@ public class MainAppChatThread extends Thread{
 				mainApp.messageVOList.add(setAmessageVO());
 				
 				String[] decryptN = content.split("#n:931006");
-				String decryptNcontent = "";
-				StringBuffer sb = new StringBuffer();
-				for(int i =0; i<decryptN.length; i++) {
-					sb.append(decryptN[i]+"\n");
-				}
-				decryptNcontent = sb.toString(); 
-				if(decryptNcontent != null) {
-					insertMyChat(decryptNcontent);
+				if(decryptN[0].equals("#oneLeft:931006")) {
+					mainApp.chatPanel.p_north_chat_member_panel.removeAll();
+					JLabel membernameLabel = new JLabel("참여자가 없는 방입니다.");
+					membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
+					membernameLabel.setForeground(Color.WHITE);
+					membernameLabel.setPreferredSize(new Dimension(400, 60));
+					mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
+					mainApp.p_center.updateUI();
+				}else {
+					String decryptNcontent = "";
+					StringBuffer sb = new StringBuffer();
+					for(int i =0; i<decryptN.length; i++) {
+						sb.append(decryptN[i]+"\n");
+					}
+					decryptNcontent = sb.toString(); 
+					if(decryptNcontent != null) {
+						insertMyChat(decryptNcontent);
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

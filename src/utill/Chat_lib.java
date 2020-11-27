@@ -192,7 +192,7 @@ public class Chat_lib {
 
 		mainApp.chatSmallPanels.add(panel1);
 		mainApp.p_chat_south_center.add(mainApp.chatSmallPanels.get(mainApp.chatSmallPanels.size() - 1));
-		mainApp.p_chat_south_center.setPreferredSize(new Dimension(240, panel.getHeight() + 40));
+		mainApp.p_chat_south_center.setPreferredSize(new Dimension(240, mainApp.chatSmallPanels.size()*45));
 		mainApp.p_chat_south_center.updateUI();
 		mainApp.p_west_south_chat.updateUI();
 	}
@@ -204,9 +204,9 @@ public class Chat_lib {
 		mainApp.p_chat_south_center.remove(Xbutton.getParent());
 		mainApp.chatSmallLabels.remove(chat_title_label);
 		mainApp.chatSmallPanels.remove(panel1);
-		mainApp.p_center_south.removeAll();
+		mainApp.p_center_south.setVisible(false);
+		mainApp.p_chat_south_center.setPreferredSize(new Dimension(240, mainApp.chatSmallPanels.size()*45));
 		mainApp.p_center_center.removeAll();
-		mainApp.p_center_south.updateUI();
 		mainApp.p_center_center.updateUI();
 		mainApp.p_chat_south_center.updateUI();
 		
@@ -236,13 +236,14 @@ public class Chat_lib {
 				String sql_setChatStatus = "update chat set chat_status = '0' where chat_id = "+chat_id;
 				pstmt = con.prepareStatement(sql_setChatStatus);
 				pstmt.executeUpdate();
+			}else if(isChatMemberNull(chat_id) == 1) {
+				mainApp.mainAppChatSocket.mainAppchatThread.send("#oneLeft:931006");
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		} finally {
 			dbManager.close(pstmt, rs);
 		}
-		
 	}
 	 
 	//해당채팅의 멤버가 존재하는지 확인해서 int 값 0,1,2를 반환 0은 없음, 1은 1명만존재, 2는 2명이상.
@@ -329,23 +330,13 @@ public class Chat_lib {
 	//mainApp채팅창 띄우는 메소드
 	public void loadChatPanel() {
 		
-		/*
-		String sql_checkMemberCount = "select count(member_no) as member_count from chatmember where chat_id ="+chat_id;
-		pstmt = con.prepareStatement(sql_checkMemberCount);
-		rs = pstmt.executeQuery();
-		
-		
-		while(rs.next()) {
-			
-		}
-		*/
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		String sql_select_message_order = "select content from message where chat_id = ? order by message_id desc ";
+//		String sql_select_message_order = "select content from message where chat_id = ? order by message_id desc ";
 		String sql_select_message = "select * from message where chat_id = ?";
-		JPanel youAlone_panel = null;
-		
-		mainApp.chattextArea.setEditable(true);
+		Boolean isAlone = false;
+		mainApp.chattextArea.setEnabled(true);
+		mainApp.p_center_south.setVisible(true);
 		mainApp.p_center_south.add(mainApp.chattextArea);
 		mainApp.p_center.add(mainApp.p_center_south, BorderLayout.SOUTH);
 		
@@ -388,13 +379,9 @@ public class Chat_lib {
 		String client_info = chat_id+","+member_no+","+current_member_name;
 		
 		if(isChatMemberNull(current_chat_id) == 1) {
-			youAlone_panel = new JPanel();
-			JLabel you_alone_label = new JLabel("참여자가 없는 방입니다.");
-			youAlone_panel.setPreferredSize(new Dimension(380, 50));
-			youAlone_panel.add(you_alone_label);
-			mainApp.chattextArea.setEnabled(false);
-			mainApp.mainAppChatSocket.mainAppchatThread.send(client_info);
+			isAlone = true;
 		}
+		mainApp.mainAppChatSocket.mainAppchatThread.send(client_info);
 		//서버로 정보보내기
 		try {
 			pstmt = con.prepareStatement(sql_select_message);
@@ -422,9 +409,15 @@ public class Chat_lib {
 					mainApp.messageVOList.add(messageVO);
 					insertMyChat(decryptNcontent, messageVO.getChat_time(), messageVO.getMember_no());
 			}
-			if(youAlone_panel != null) {
-				mainApp.p_chat.add(youAlone_panel);
+			if(isAlone) {
+				mainApp.chatPanel.p_north_chat_member_panel.removeAll();
+				JLabel membernameLabel = new JLabel("참여자가 없는 방입니다.");
+				membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
+				membernameLabel.setForeground(Color.WHITE);
+				membernameLabel.setPreferredSize(new Dimension(400, 60));
+				mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
 			}
+			mainApp.p_chat.updateUI();
 			mainApp.p_center_center.updateUI();
 			mainApp.p_center_south.updateUI();
 			mainApp.p_center.updateUI();

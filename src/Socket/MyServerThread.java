@@ -1,5 +1,6 @@
 package socket;
 
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,7 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import layout.MainApp;
 
@@ -54,6 +57,7 @@ public class MyServerThread extends Thread {
 	public void listen() {
 		try {
 			String msg = null;
+			JPanel youAlone_panel = null;
 			while(isAlive) {
 				if(cnt == 0) {
 					msg = buffr.readLine();
@@ -61,8 +65,10 @@ public class MyServerThread extends Thread {
 						myServerSocket.threadList.remove(this);
 						isAlive = false;
 						System.out.println("채팅창 나간데 ! msg : "+msg);
+					}else if(msg.equals("#oneLeft:931006")) {
+						send(msg);
 					}else {
-						getInfo();
+						getInfo(msg);
 						System.out.println("난 채팅창 바꿀떄 한번만 나타나야해!");
 					}
 				}else if(cnt > 0) {
@@ -86,13 +92,7 @@ public class MyServerThread extends Thread {
 		}
 	}
 	
-	public void getInfo() {
-		String clientInfo = null;
-		try {
-			clientInfo = buffr.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void getInfo(String clientInfo) {
 		String[] info = clientInfo.split(",");
 		chat_id = info[0];
 		System.out.println("받은 채팅 pk는 : "+chat_id);
