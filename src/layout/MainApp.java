@@ -90,6 +90,7 @@ public class MainApp {
 	public boolean loadFlag = true;
 	public boolean isSocketConnected = false;
 	public JTextArea textArea;
+	public String gotChatMemberName;
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
@@ -887,6 +888,7 @@ public class MainApp {
 				textArea.getLineCount();
 				String lineChangedText = chat_lib.seperateTextLine();
 				mainAppChatSocket.mainAppchatThread.send(lineChangedText);
+				textArea.setText("");
 			}
 		});
 		insertButton.setBounds(843, 33, 101, 47);

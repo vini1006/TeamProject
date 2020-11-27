@@ -135,7 +135,7 @@ public class ChatPanel_design {
 		
 		JLabel myChatTimeLabel = new JLabel("12:12 pm");
 		myChatTimeLabel.setForeground(Color.WHITE);
-		myChatTimeLabel.setBounds(60, 26, 74, 29);
+		myChatTimeLabel.setBounds(60, 26, 74, 52);
 		myUserPanel.add(myChatTimeLabel);
 		
 		JTextArea chatTextArea = new JTextArea();

@@ -28,6 +28,7 @@ public class MyServerThread extends Thread {
 	String chat_id;
 	String message_id;
 	String member_no;
+	String current_memberName;
 	String current_time;
 	String current_messageId;
 	
@@ -90,6 +91,8 @@ public class MyServerThread extends Thread {
 		System.out.println("받은 채팅 pk는 : "+chat_id);
 		member_no = info[1];
 		System.out.println("받은 회원 pk는 : "+member_no);
+		current_memberName = info[2];
+		System.out.println("받은 회원 이름은 : "+current_memberName);
 		checkClient = false;
 		cnt++;
 	}
@@ -102,7 +105,7 @@ public class MyServerThread extends Thread {
 		sql += " values(?, seq_message.nextval, ?, ?, ?)";
 		String sql_getCurrentId = "select max(message_id) as message_id from message";
 
-		SimpleDateFormat date_format = new SimpleDateFormat("MM월dd일 HH시mm분ss초");
+		SimpleDateFormat date_format = new SimpleDateFormat("MM/dd HH:mm");
 		current_time = date_format.format(System.currentTimeMillis());
 
 		try {
@@ -135,7 +138,7 @@ public class MyServerThread extends Thread {
 		try {
 			for (int i = 0; i < myServerSocket.threadList.size(); i++) {
 				MyServerThread myServerThread = myServerSocket.threadList.get(i);
-				myServerThread.buffw.write(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+msg + "\n");
+				myServerThread.buffw.write(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+current_memberName+","+msg + "\n");
 				myServerThread.buffw.flush();
 			}
 		} catch (IOException e) {

@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -23,7 +24,7 @@ import java.awt.SystemColor;
 
 public class ChatPanel {
 
-	private JLabel myRankLabel;
+	public JLabel myRankLabel;
 	public JPanel p_chat_container;
 	public JPanel p_north;
 	public JLabel p_north_chat_title;
@@ -76,21 +77,19 @@ public class ChatPanel {
 		
 		
 		p_chat = new JPanel();
-		p_chat.setPreferredSize(new Dimension(800, 10));
+		p_chat.setPreferredSize(new Dimension(875, 5000000));
 		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
-		p_chat.setLayout(null);
 		
 		aChat_panel = new JPanel();
-		aChat_panel.setPreferredSize(new Dimension(875, 100));
+		aChat_panel.setPreferredSize(new Dimension(875, 150));
 		aChat_panel.setBorder(null);
 		aChat_panel.setBackground(Color.DARK_GRAY);
-		p_chat.add(aChat_panel);
 		aChat_panel.setLayout(null);
 		
 		myUserPanel = new JPanel();
 		myUserPanel.setBounds(0, 0, 157, 78);
-		aChat_panel.add(myUserPanel);
+		//aChat_panel.add(myUserPanel);
 		myUserPanel.setBorder(null);
 		myUserPanel.setBackground(Color.DARK_GRAY);
 		myUserPanel.setLayout(null);
@@ -115,12 +114,13 @@ public class ChatPanel {
 		
 		myChatTimeLabel = new JLabel("12:12 pm");
 		myChatTimeLabel.setForeground(Color.WHITE);
-		myChatTimeLabel.setBounds(60, 26, 74, 29);
+		myChatTimeLabel.setBounds(60, 26, 90, 50);
 		myUserPanel.add(myChatTimeLabel);
 		
 		chatTextArea = new JTextArea();
 		chatTextArea.setBounds(185, 0, 483, 78);
-		aChat_panel.add(chatTextArea);
+		chatTextArea.setPreferredSize(new Dimension(483, 78));
+		//aChat_panel.add(chatTextArea);
 		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
 		chatTextArea.setForeground(Color.WHITE);
 		chatTextArea.setAlignmentX(3.0f);
@@ -130,11 +130,11 @@ public class ChatPanel {
 		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
 		chatTextArea.setLineWrap(true);
-		chatTextArea.setText("안녕하세요 좋은하루입니다 제가글을 길~~~~~~~~~~~~~~~~~~~~~~~~~~~게 써볼게요 그리고");
-		
+		chatTextArea.setText("채팅들어감");
+		/*
 		otherUserPanel = new JPanel();
 		otherUserPanel.setBounds(694, 0, 180, 78);
-		aChat_panel.add(otherUserPanel);
+		//aChat_panel.add(otherUserPanel);
 		otherUserPanel.setLayout(null);
 		otherUserPanel.setBorder(null);
 		otherUserPanel.setBackground(Color.DARK_GRAY);
@@ -161,12 +161,21 @@ public class ChatPanel {
 		otherChatTimeLabel.setForeground(Color.WHITE);
 		otherChatTimeLabel.setBounds(12, 26, 74, 29);
 		otherUserPanel.add(otherChatTimeLabel);
-		p_chat_container.add(scrollPane, BorderLayout.CENTER);
+		*/
+	}
+	public JPanel gatMychatPanel() {
+		aChat_panel.add(chatTextArea);
+		aChat_panel.add(myUserPanel);
+		return aChat_panel;
+	}
+	
+	public JPanel getOtherChatPanel() {
+		aChat_panel.add(chatTextArea);
+		aChat_panel.add(otherUserPanel);
+		return aChat_panel;
 	}
 	
 	public JPanel getChatPanel() {
-		
-		
 		p_chat_container.add(p_north, BorderLayout.NORTH);
 		p_north.add(p_north_chat_title, BorderLayout.WEST);
 		p_north.add(p_north_chat_member_panel, BorderLayout.CENTER);

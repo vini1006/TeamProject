@@ -13,7 +13,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -313,7 +311,7 @@ public class Chat_lib {
 			int memberno = mainApp.chatMemberVOList.get(i).getMember_no();
 			chatMemberNo.add(memberno);
 		}
-		chatMemberName = changeMemberNotoName(chatMemberNo);
+		chatMemberName = changeMemberNotoNameList(chatMemberNo);
 		for (int i = 0; i < chatMemberName.size(); i++) {
 			JLabel membernameLabel = new JLabel(chatMemberName.get(i));
 			membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 16));
@@ -327,8 +325,12 @@ public class Chat_lib {
 		mainApp.p_center_center.add(mainApp.chat_panel, BorderLayout.CENTER);
 		String chat_id = Integer.toString(mainApp.chatVO.getChat_id());
 		String member_no = Integer.toString(mainApp.getRegistMemberVO().getMember_no());
-		String client_info = chat_id+","+member_no;
+		String current_member_name = mainApp.getRegistMemberVO().getMember_name();
+		String client_info = chat_id+","+member_no+","+current_member_name;
+		
+		//서버로 정보보내기
 		mainApp.mainAppChatSocket.mainAppchatThread.send(client_info);
+		
 		try {
 			pstmt = con.prepareStatement(sql_select_message);
 			pstmt.setInt(1, mainApp.chatVO.getChat_id());
@@ -338,9 +340,11 @@ public class Chat_lib {
 					MessageVO messageVO = new MessageVO();
 					messageVO.setChat_id(mainApp.chatVO.getChat_id());
 					messageVO.setMember_no(rs.getInt("member_no"));
+					mainApp.gotChatMemberName = changeMemberNotoName(rs.getInt("member_no"));
 					messageVO.setMessage_id(rs.getInt("message_id"));
 					messageVO.setChat_time(rs.getString("chat_time"));
 					messageVO.setContent(rs.getString("content"));
+					
 					String[] decryptN = messageVO.getContent().split("#n:931006");
 					String decryptNcontent = "";
 					StringBuffer sb = new StringBuffer();
@@ -348,7 +352,7 @@ public class Chat_lib {
 						sb.append(decryptN[i]+"\n");
 					}
 					decryptNcontent = sb.toString();
-					insertMyChat(decryptNcontent);
+					insertMyChat(decryptNcontent, messageVO.getChat_time(), messageVO.getMember_no());
 					mainApp.messageVOList.add(messageVO);
 				}
 			}else {
@@ -392,8 +396,27 @@ public class Chat_lib {
 		}
 	}
 	
+	public String changeMemberNotoName(int member_no) {
+		String member_name = "";
+		String sql = "select member_name from registmember where member_no = "+member_no;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				member_name = rs.getString("member_name");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return member_name;
+	}
+	
 	//멤버no가 담긴 arrayList를 넘기면 멤버Name리스트로 바꿔줌
-	public ArrayList<String> changeMemberNotoName(ArrayList<Integer> chatmemberno) {
+	public ArrayList<String> changeMemberNotoNameList(ArrayList<Integer> chatmemberno) {
 		String sql = "select member_name from registmember where member_no = ?";
 		PreparedStatement pstmt;
 		ResultSet rs;
@@ -524,26 +547,62 @@ public class Chat_lib {
 		return sb.toString();
 	}
 	
-	public void insertMyChat(String msg){
+	public void insertMyChat(String msg, String chat_time, int member_no){
+		System.out.println(chat_time);
+		ChatPanel chatPanel = new ChatPanel();
 		JTextArea chatTextArea = new JTextArea();
+		
 		chatTextArea = new JTextArea();
 		chatTextArea.setFont(new Font("HY견고딕", Font.PLAIN, 16));
 		chatTextArea.setForeground(Color.WHITE);
 		chatTextArea.setBackground(SystemColor.activeCaption);
 		chatTextArea.setEditable(false);
 		chatTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 8, true));
+		chatTextArea.setBorder(new LineBorder(SystemColor.activeCaption, 2, true));
 		chatTextArea.setLineWrap(true);
 		chatTextArea.setText(msg);
-		String[] msgLine = msg.split("\n");
-		int lineCount = msgLine.length;
 		
-		if(mainApp.messageVOList.size() == 0) {
-			chatTextArea.setBounds(200, 10, 480, 35*lineCount);
-		}else if(mainApp.messageVOList.size() > 0) {
-			chatTextArea.setBounds(200, mainApp.messageVOList.size()*80+40, 480, 35*lineCount);
+		JPanel userPanel = new JPanel();
+		userPanel.setBorder(null);
+		userPanel.setBackground(Color.DARK_GRAY);
+		userPanel.setLayout(null);
+		
+		int lineCount = chatTextArea.getLineCount();
+		int chatTextAreaHeight = 15*lineCount;
+		chatTextArea.setPreferredSize(new Dimension(480, chatTextAreaHeight));
+		
+		if(mainApp.getRegistMemberVO().getMember_no() == member_no) {
+			userPanel.setBounds(0, 0, 157, 78);
+			chatPanel.myNameLabel.setText(mainApp.getRegistMemberVO().getMember_name());
+			chatTextArea.setBounds(185, 0, 480, chatTextAreaHeight);
+		}else {
+			chatTextArea.setBounds(230, 0, 480, chatTextAreaHeight);
+			userPanel.setBounds(694, 0, 157, 78);
+			chatPanel.myNameLabel.setText(mainApp.gotChatMemberName);
+			
+			chatPanel.myChatTimeLabel.setBounds(12, 26, 74, 29);
+			chatPanel.myRankLabel.setBounds(57, 8, 53, 29);
+			chatPanel.myNameLabel.setBounds(12, 0, 53, 40);
+			chatPanel.myImagLabel.setBounds(132, 0, 48, 79);
+			userPanel.setBounds(794, 0, 157, 78);
 		}
-		mainApp.p_chat.add(chatTextArea);
+		chatPanel.myChatTimeLabel.setText(chat_time);
+		userPanel.add(chatPanel.myImagLabel);
+		userPanel.add(chatPanel.myChatTimeLabel);
+		userPanel.add(chatPanel.myNameLabel);
+		userPanel.add(chatPanel.myRankLabel);
+		
+		JPanel aChatPanel = new JPanel();
+		aChatPanel.setMinimumSize(new Dimension(875, 150));
+		aChatPanel.setPreferredSize(new Dimension(900, chatTextAreaHeight+30));
+		aChatPanel.setBorder(null);
+		aChatPanel.setLayout(null);
+		aChatPanel.setBackground(Color.DARK_GRAY);
+		aChatPanel.add(userPanel);
+		aChatPanel.add(chatTextArea);
+		
+		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*150));
+		mainApp.p_chat.add(aChatPanel);
 		mainApp.p_chat.updateUI();
 		mainApp.p_center.updateUI();
 		}
