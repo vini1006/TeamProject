@@ -14,24 +14,24 @@ import javax.mail.internet.MimeMessage;
 import javax.swing.JTextField;
 
 public class Mailing {
-   
-   static String mail;
-   
-   public Mailing()
-   {
-      mail = "";            
-   }
-   
-   public Mailing(String s)
-   {
-      mail = s;   
-   }
-   
-   public static void main(String[] args) {
-      Mailing mailing = new Mailing(mail);
-      mailing.send(mail);
-   }
-   
+	
+	static String mail;
+	
+	public Mailing()
+	{
+		mail = "";				
+	}
+	
+	public Mailing(String s)
+	{
+		mail = s;	
+	}
+	
+	public static void main(String[] args) {
+		Mailing mailing = new Mailing(mail);
+		mailing.send(mail);
+	}
+	
    
    public void send(String askEmail) {
       String host = "smtp.gmail.com";

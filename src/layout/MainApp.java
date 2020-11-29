@@ -15,8 +15,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 
@@ -45,8 +43,7 @@ import models.ChatVO;
 import models.MessageVO;
 import models.RegistMemberVO;
 import socket.MainAppChatSocket;
-import socket.MainAppChatThread;
-import socket.MyServerSocket;
+import utill.Board_Group_lib;
 import utill.Chat_lib;
 import utill.DBManager;
 
@@ -55,8 +52,8 @@ public class MainApp {
 	JPanel p_west_south_inChatList;
 	public JFrame frame;
 	public JTextField t_chat_pop_name;
-	JTextField t_board_pop_name;
-	DBManager dbManager;
+	public JTextField t_board_pop_name;
+	public DBManager dbManager;
 	private JLabel myRankLabel;
 
 	/*---------------------------------------------------------------
@@ -68,6 +65,7 @@ public class MainApp {
 	* 회원관련 변수
 	---------------------------------------------------------------*/
 	private RegistMemberVO registMemberVO;
+	
 
 	/*---------------------------------------------------------------
 	* 채팅 관련 
@@ -75,6 +73,8 @@ public class MainApp {
 	public ChatVO chatVO;
 	public MessageVO messageVO;
 	Chat_lib chat_lib;
+	Board_Group_lib board_Group_lib;
+	public HeaderIssue headerIssue;
 	CenterChattingPanel centerChattingPanel;
 	public ArrayList<String> chat_settedMember = new ArrayList<String>();
 	public ArrayList<JPanel> chatSmallPanels = new ArrayList<JPanel>();
@@ -89,11 +89,14 @@ public class MainApp {
 	public JPanel chat_panel;
 	public ChatPanel chatPanel;
 	public JPanel p_chat;
+	public Popup popup;
+	public Popup popup_ch;
+	public Popup chatOut_pop;
 	
 	//채팅요소들
 	public JTextArea chatMessageArea;
 	public boolean loadFlag = true;
-	public boolean isSocketConnected = false;
+	
 	public JTextArea chattextArea;
 	public String gotChatMemberName;
 	public JScrollPane chat_scroll;
@@ -108,14 +111,12 @@ public class MainApp {
 	---------------------------------------------------------------*/
 //	public MyServerThread mainAppChatThread;
 	public MainAppChatSocket mainAppChatSocket;
+	public boolean isCnt = false;
+	public boolean isSocketConnected = false;
 	
 	/*---------------------------------------------------------------
 	* 채팅 소켓 관련 끝 
 	---------------------------------------------------------------*/
-	
-
-	ArrayList<JPanel> boardPanels = new ArrayList<JPanel>();
-	ArrayList<JLabel> boardPanellabels = new ArrayList<JLabel>();
 	public ArrayList<JLabel> chatPopAddLabels = new ArrayList<JLabel>();
 
 	public JPanel p_center;
@@ -137,8 +138,7 @@ public class MainApp {
 	public JPanel p_chat_set_pop_checkPanel;
 	JScrollPane p_chat_pop_add_scrolls;
 	Choice ch_chat_pop_invite;
-	public Popup popup;
-	public Popup popup_ch;
+	
 	public Popup popup_ch_add;
 	public JLabel la_userName;
 
@@ -149,6 +149,14 @@ public class MainApp {
 	JButton btnSearch;
 	public JLabel default_label;
 	public JPanel p_center_south;
+	public JPanel p_west_list;
+	
+	//헤더 라벨
+	public JLabel la_boardIssue;
+	public JPanel p_center_north;
+	
+	LoginPage loginPage = new LoginPage();
+	
 
 	/**
 	 * Launch the application.
@@ -185,17 +193,19 @@ public class MainApp {
 		chatVO = new ChatVO();
 		chat_lib = new Chat_lib(this);
 //		new MyServerSocket(this);
-//		mainAppChatSocket = new MainAppChatSocket(this);
 		
 		/*------------------------------------------------------
-		 * 
+		 * 게시판 관련
 		-----------------------------------------------------*/
+		board_Group_lib = new Board_Group_lib(this);
 		
-		
-		
-
+		//게시판 제목 헤더에 띄우기 
+		headerIssue = new HeaderIssue(this);
+		//게시판 그룹 출력 ..
 		initialize();
-
+		board_Group_lib.selectBoardGroup();
+		headerIssue.selectBoard();
+		
 	}
 	
 
@@ -215,38 +225,6 @@ public class MainApp {
 		this.registMemberVO = registMemberVO;
 	}
 
-	/*---------------------------------------------------
-	* 게시판 패널 생성메서드
-	---------------------------------------------------*/
-	public void createBoardList(JPanel panel, String folderName, int fontSize) {
-		Font font = new Font("HY견고딕", Font.BOLD, fontSize);
-		JLabel label = new JLabel(folderName, 10);
-		label.setBounds(30, 0, 240, 40);
-		label.setFont(font);
-		boardPanellabels.add(label);
-		JPanel panel1 = new JPanel();
-		panel1.add(boardPanellabels.get(boardPanellabels.size() - 1), BorderLayout.WEST);
-		panel1.setBackground(new Color(64, 64, 64, 60));
-		panel1.setPreferredSize(new Dimension(240, 40));
-		panel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		panel1.setLayout(null);
-		
-		if (boardPanels.size() <= 0) {
-			panel1.setBounds(0, 0, 240, 40);
-		} else {
-			panel1.setBounds(boardPanels.get(boardPanels.size() - 1).getX(),
-					boardPanels.get(boardPanels.size() - 1).getY() + 40, 240, 40);
-		}
-		boardPanels.add(panel1);
-
-		panel.add(boardPanels.get(boardPanels.size() - 1));
-		if ((boardPanels.size() * 40) > panel.getWidth()) {
-			panel.setPreferredSize(new Dimension(240, boardPanels.size() * 40));
-		}
-		panel.updateUI();
-	}
-
-
 	private void initialize() {
 
 		try {
@@ -264,8 +242,8 @@ public class MainApp {
 		/*------------------------------------------
 		 * mainAppChatSocket 부착
 		 ----------------------------------------*/
-		
-		
+		mainAppChatSocket = new MainAppChatSocket(this);
+		isSocketConnected = true;
 		
 		/*------------------------------------------
 		 * frame 종료시 리스너
@@ -301,6 +279,7 @@ public class MainApp {
 		p_west_north.setLayout(new BorderLayout(0, 0));
 
 		JPanel p_west_north_title = new JPanel();
+		p_west_north_title.setBorder(new MatteBorder(0, 0, 1, 1, (Color) new Color(0, 0, 0)));
 		p_west_north_title.setPreferredSize(new Dimension(240, 80));
 		p_west_north_title.setBackground(new Color(64, 64, 64));
 		p_west_north.add(p_west_north_title, BorderLayout.NORTH);
@@ -329,7 +308,7 @@ public class MainApp {
 		panel.add(lblNewLabel_1, BorderLayout.CENTER);
 
 		JPanel p_west_north_boardTitle = new JPanel();
-		p_west_north_boardTitle.setBorder(new MatteBorder(1, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		p_west_north_boardTitle.setBorder(new MatteBorder(0, 0, 0, 1, (Color) new Color(0, 0, 0)));
 		p_west_north_boardTitle.setPreferredSize(new Dimension(240, 40));
 		p_west_north_boardTitle.setBackground(new Color(64, 64, 64));
 		p_west_north.add(p_west_north_boardTitle, BorderLayout.SOUTH);
@@ -348,7 +327,7 @@ public class MainApp {
 		p_west_south.setLayout(new BorderLayout(0, 0));
 
 		JPanel p_west_south_chatTitle = new JPanel();
-		p_west_south_chatTitle.setBorder(new MatteBorder(1, 0, 1, 0, (Color) new Color(0, 0, 0)));
+		p_west_south_chatTitle.setBorder(new MatteBorder(0, 0, 0, 1, (Color) new Color(0, 0, 0)));
 		p_west_south_chatTitle.setBackground(new Color(64, 64, 64));
 		p_west_south_chatTitle.setPreferredSize(new Dimension(240, 40));
 		p_west_south.add(p_west_south_chatTitle, BorderLayout.NORTH);
@@ -393,6 +372,7 @@ public class MainApp {
 		p_west_south_chatTitle.add(bt_chat);
 
 		JLabel la_chatTitle = new JLabel("채팅(Chat)");
+		la_chatTitle.setBorder(null);
 		la_chatTitle.setForeground(Color.WHITE);
 		la_chatTitle.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		la_chatTitle.setBounds(14, 10, 140, 18);
@@ -404,6 +384,7 @@ public class MainApp {
 		p_chat_south_center.setPreferredSize(new Dimension(240, 80));
 		chatListScroll = new JScrollPane(p_chat_south_center, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		chatListScroll.setBorder(null);
 //		p_chat_south_center.setLayout();
 		p_west_south_chatList.setBackground(new Color(64, 64, 64));
 		p_west_south_chatList.setPreferredSize(new Dimension(240, 0));
@@ -420,7 +401,7 @@ public class MainApp {
 		p_west_south_chat.add(chatListScroll);
 //      p_west_south_chat.setLayout();
 
-		JPanel p_west_list = new JPanel();
+		p_west_list = new JPanel();
 		p_west_list.setBackground(new Color(64, 64, 64));
 		boardListScroll = new JScrollPane(p_west_list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -446,6 +427,7 @@ public class MainApp {
 		});
 
 		p_east = new JPanel();
+		p_east.setBorder(new MatteBorder(0, 1, 0, 0, (Color) new Color(0, 0, 0)));
 		p_east.setBackground(new Color(64, 64, 64));
 		p_east.setPreferredSize(new Dimension(70, 960));
 		frame.getContentPane().add(p_east, BorderLayout.EAST);
@@ -634,9 +616,7 @@ public class MainApp {
 			 --------------------------------------------*/
 				Object obj = e.getSource();
 				if (obj == bt_chat_pop_ok) {
-					
 					chat_lib.createChatList(p_chat_south_center, t_chat_pop_name.getText(), 15);
-//					mainAppChatSocket.mainAppchatThread.send("#newChat:931006");
 					popup_ch.hide();
 					popup_ch_add.hide();
 					for (int i = 0; i < chatPopAddLabels.size(); i++) {
@@ -681,19 +661,19 @@ public class MainApp {
 		   ------------------------------------------------------------------------------------*/
 		p_board_set_pop = new JPanel();
 		p_board_set_pop.setBackground(new Color(32, 32, 32, 100));
-		p_board_set_pop.setBounds(0, 0, 350, 400);
+		p_board_set_pop.setBounds(0, 0, 350, 200);
 		p_board_set_pop.setLayout(null);
 
 		JLabel la_board_pop_title = new JLabel("게시판 생성");
 		la_board_pop_title.setForeground(Color.LIGHT_GRAY);
 		la_board_pop_title.setFont(new Font("HY견고딕", Font.PLAIN, 28));
-		la_board_pop_title.setBounds(115, 10, 150, 69);
+		la_board_pop_title.setBounds(105, 10, 150, 69);
 		p_board_set_pop.add(la_board_pop_title);
 
 		JLabel la_board_pop_name = new JLabel("이름");
 		la_board_pop_name.setForeground(Color.LIGHT_GRAY);
 		la_board_pop_name.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		la_board_pop_name.setBounds(12, 68, 91, 40);
+		la_board_pop_name.setBounds(60, 68, 91, 40);
 		p_board_set_pop.add(la_board_pop_name);
 
 		t_board_pop_name = new JTextField();
@@ -703,39 +683,13 @@ public class MainApp {
 		t_board_pop_name.setBorder(new TitledBorder(
 				new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "",
 				TitledBorder.LEFT, TitledBorder.BELOW_TOP, null, new Color(0, 0, 0)));
-		t_board_pop_name.setBounds(12, 101, 207, 30);
+		t_board_pop_name.setBounds(60, 101, 207, 30);
 		p_board_set_pop.add(t_board_pop_name);
 		t_board_pop_name.setColumns(10);
 
-		JLabel la_board_pop_auth = new JLabel("참여가능권한");
-		la_board_pop_auth.setForeground(Color.LIGHT_GRAY);
-		la_board_pop_auth.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		la_board_pop_auth.setBounds(12, 150, 101, 30);
-		p_board_set_pop.add(la_board_pop_auth);
-
-		Choice ch_board_pop_auth = new Choice();
-		ch_board_pop_auth.setForeground(Color.WHITE);
-		ch_board_pop_auth.setBackground(Color.DARK_GRAY);
-		ch_board_pop_auth.setPreferredSize(new Dimension(7, 21));
-		ch_board_pop_auth.setBounds(12, 186, 207, 49);
-		p_board_set_pop.add(ch_board_pop_auth);
-
-		JLabel la_board_pop_invite = new JLabel("참여 인원 선택");
-		la_board_pop_invite.setForeground(Color.LIGHT_GRAY);
-		la_board_pop_invite.setFont(new Font("HY견고딕", Font.PLAIN, 16));
-		la_board_pop_invite.setBounds(12, 226, 126, 30);
-		p_board_set_pop.add(la_board_pop_invite);
-
-		Choice ch_board_pop_invite = new Choice();
-		ch_board_pop_invite.setPreferredSize(new Dimension(7, 21));
-		ch_board_pop_invite.setForeground(Color.WHITE);
-		ch_board_pop_invite.setBackground(Color.DARK_GRAY);
-		ch_board_pop_invite.setBounds(12, 262, 207, 20);
-		p_board_set_pop.add(ch_board_pop_invite);
-
 		JButton bt_board_pop_cancel = new JButton("취소");
 		bt_board_pop_cancel.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-		bt_board_pop_cancel.setBounds(128, 359, 91, 23);
+		bt_board_pop_cancel.setBounds(128, 150, 91, 23);
 		p_board_set_pop.add(bt_board_pop_cancel);
 		bt_board_pop_cancel.addActionListener((e) -> {
 			popup.hide();
@@ -743,12 +697,17 @@ public class MainApp {
 		});
 		JButton bt_board_pop_ok = new JButton("시작");
 		bt_board_pop_ok.setFont(new Font("HY견고딕", Font.PLAIN, 12));
-		bt_board_pop_ok.setBounds(231, 359, 91, 23);
+		bt_board_pop_ok.setBounds(231, 150, 91, 23);
 		p_board_set_pop.add(bt_board_pop_ok);
 		bt_board_pop_ok.addActionListener((e) -> {
 			Object obj = e.getSource();
 			if (obj == bt_board_pop_ok) {
-				createBoardList(p_west_list, t_board_pop_name.getText(), 15);
+				if(t_board_pop_name.getText() == "") {
+					JOptionPane.showMessageDialog(frame, "이름을 입력해주세요..");
+				} else {
+					board_Group_lib.addBoardGroup();
+					board_Group_lib.selectBoardGroup();
+				}
 				t_board_pop_name.setText("");
 				popup.hide();
 				s_pop = false;
@@ -825,6 +784,30 @@ public class MainApp {
 		p_hamburger_la_logout.setFont(new Font("HY견고딕", Font.PLAIN, 20));
 		p_hamburger_la_logout.setBounds(12, 54, 99, 24);
 		p_hamburger_logout_panel.add(p_hamburger_la_logout);
+		p_hamburger_la_logout.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				/*
+				if(loginPage.check_isSetId.isSelected()) {
+					System.out.println("check");
+					loginPage.t_password.setText("");
+				}else {
+					System.out.println("uncheck");
+					loginPage.t_password.setText("");
+					loginPage.t_id.setText("");
+					
+				}
+				*/
+				mainAppChatSocket.mainAppchatThread.send("exit:931006");
+				mainAppChatSocket.mainAppchatThread.flag = false;
+					
+				frame.dispose();
+				loginPage.loginShow();
+				
+	            
+			}
+	
+		});
 
 		/*-------------------------------------------------------------------------------------
 		 * 팝업 패널에 대한 설정끝
@@ -865,28 +848,29 @@ public class MainApp {
 		p_center.setPreferredSize(new Dimension(900, 560));
 		frame.getContentPane().add(p_center, BorderLayout.CENTER);
 		p_center.setLayout(new BorderLayout(0, 0));
+		
 
-		JPanel p_center_north = new JPanel();
-		p_center_north.setBorder(new MatteBorder(0, 1, 0, 1, (Color) new Color(0, 0, 0)));
+		p_center_north = new JPanel();
+		p_center_north.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 		p_center_north.setBackground(new Color(64, 64, 64));
 		p_center_north.setPreferredSize(new Dimension(900, 80));
 		p_center.add(p_center_north, BorderLayout.NORTH);
 		p_center_north.setLayout(null);
 
-		JLabel la_Anounce = new JLabel("공지사항");
+		JLabel la_Anounce = new JLabel("게시판 이슈");
 		la_Anounce.setBounds(14, 12, 107, 18);
 		la_Anounce.setForeground(Color.WHITE);
 		la_Anounce.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		p_center_north.add(la_Anounce);
 
-		JLabel la_boardIssue = new JLabel("공지사항 이슈 들어갈 라벨");
+		la_boardIssue = new JLabel("공지사항 이슈 들어갈 라벨");
 		la_boardIssue.setForeground(Color.WHITE);
 		la_boardIssue.setFont(new Font("HY견고딕", Font.PLAIN, 15));
 		la_boardIssue.setBounds(37, 40, 659, 23);
 		p_center_north.add(la_boardIssue);
 
 		p_center_south = new JPanel();
-		p_center_south.setBorder(new MatteBorder(0, 0, 0, 1, (Color) new Color(0, 0, 0)));
+		p_center_south.setBorder(new MatteBorder(1, 0, 0, 0, (Color) new Color(0, 0, 0)));
 		p_center_south.setPreferredSize(new Dimension(900, 180));
 		p_center_south.setBackground(new Color(64, 64, 64));
 //		p_center.add(p_center_south, BorderLayout.SOUTH);
@@ -900,7 +884,7 @@ public class MainApp {
 		chattextArea = new JTextArea();
 		chattextArea.setBounds(67, 13, 764, 116);
 		chattextArea.setPreferredSize(new Dimension(770,115));
-		p_center_south.add(chattextArea);
+//		p_center_south.add(chattextArea);
 		
 		JButton insertButton = new JButton("입력");
 		insertButton.addActionListener(new ActionListener() {
@@ -908,6 +892,7 @@ public class MainApp {
 				if(messageVOList.size()==0) {
 					mainAppChatSocket.mainAppchatThread.send("#newChat:931006");
 				}
+				
 				String msg = chattextArea.getText();
 				chattextArea.getInputContext();
 				chattextArea.getLineCount();
@@ -924,6 +909,7 @@ public class MainApp {
 		p_center_center.setVisible(true);
 		p_center.add(p_center_center, BorderLayout.CENTER);
 		p_center_center.setLayout(new BorderLayout(0, 0));
+		p_center_center.setBorder(new MatteBorder(0, 0, 0, 0, (Color) new Color(0, 0, 0)));
 
 		/*-------------------------------------------------------------------------------
 		 * 가운데 채팅 패널 설정! 

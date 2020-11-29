@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 
 public class ChatPanel {
 
@@ -46,11 +47,12 @@ public class ChatPanel {
 		p_chat_container.setPreferredSize(new Dimension(900, 520));
 		p_chat_container.setBounds(6, 60, 900, 520);
 		p_chat_container.setLayout(new BorderLayout(0, 0));
-		p_chat_container.setBorder(new LineBorder(new Color(0,0,0)));
+		p_chat_container.setBorder(new MatteBorder(0, 0, 0, 0, (Color) new Color(0, 0, 0)));
 		
 		p_north = new JPanel();
 		p_north.setBackground(Color.DARK_GRAY);
 		p_north.setPreferredSize(new Dimension(10, 70));
+		p_north.setBorder(new MatteBorder(0, 0, 0, 0, (Color) new Color(0, 0, 0)));
 		p_north.setLayout(new BorderLayout(0, 0));
 		
 		p_north_chat_title = new JLabel("New label");
@@ -73,8 +75,8 @@ public class ChatPanel {
 		
 		
 		p_chat = new JPanel();
+		p_chat.setBorder(new MatteBorder(1, 0, 0, 0, (Color) new Color(0, 0, 0)));
 		p_chat.setMaximumSize(new Dimension(875, 5000000));
-		p_chat.setBorder(UIManager.getBorder("ToolTip.border"));
 		p_chat.setBackground(Color.DARK_GRAY);
 		p_chat.setLayout(new FlowLayout(FlowLayout.LEFT, 40,40));
 		
@@ -178,6 +180,7 @@ public class ChatPanel {
 		p_north.add(p_north_chat_title, BorderLayout.WEST);
 		p_north.add(p_north_chat_member_panel, BorderLayout.CENTER);
 		scrollPane = new JScrollPane(p_chat);
+		scrollPane.setBorder(new MatteBorder(0, 0, 0, 0, (Color) new Color(0, 0, 0)));
 		p_chat_container.add(scrollPane, BorderLayout.CENTER);
 		/*
 		myUserPanel.add(myImagLabel);

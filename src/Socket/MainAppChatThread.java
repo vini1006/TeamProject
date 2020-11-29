@@ -12,10 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,9 +20,11 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
+import layout.ChatOutPopPanel;
 import layout.ChatPanel;
 import layout.MainApp;
 import models.MessageVO;
+import utill.Chat_lib;
 
 
 
@@ -47,10 +45,12 @@ public class MainAppChatThread extends Thread{
 	int message_id;
 	String memberName;
 	
-	
+	Chat_lib chat_lib;
 	
 
 	public MainAppChatThread(MainApp mainApp, Socket socket, MainAppChatSocket mainAppchatSocket) {
+		
+		chat_lib = new Chat_lib(mainApp);
 		messageVO = new MessageVO();
 		this.socket = socket;
 		this.mainAppchatSocket = mainAppchatSocket;
@@ -67,58 +67,89 @@ public class MainAppChatThread extends Thread{
 		listen();
 	}
 	
-	//서버가 보낸 메시지 듣기.
+	// 서버가 보낸 메시지 듣기.
 	public void listen() {
 		String line = null;
 		String[] text = new String[4];
-		
-		
-	
-		while(flag) {
-			try {
-				line = buffr.readLine();
-				text = line.split(",", 6);
-				chat_id = Integer.parseInt(text[0]);
-				current_time = text[1];
-				member_no = Integer.parseInt(text[2]);
-				message_id = Integer.parseInt(text[3]);
-				memberName = text[4];
-				mainApp.gotChatMemberName = text[4];
-				mainApp.messageVO = setAmessageVO(); 
-				mainApp.messageVOList.add(setAmessageVO());
-				content = text[5];
-				if(mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
-					System.out.println("현재 메시지가 준 chat_id "+mainApp.messageVO.getChat_id());
-					System.out.println("현재 chat_id "+mainApp.chatVO.getChat_id());
+
+		while (flag) {
+				try {
+					line = buffr.readLine();
+					System.out.println("현재 내가 참여한 채팅방 : "+mainApp.chatVO.getChat_id());
+					text = line.split(",", 6);
+					chat_id = Integer.parseInt(text[0]);
+					current_time = text[1];
+					member_no = Integer.parseInt(text[2]);
+					message_id = Integer.parseInt(text[3]);
+					memberName = text[4];
+					mainApp.gotChatMemberName = text[4];
+					mainApp.messageVO = setAmessageVO();
+					mainApp.messageVOList.add(setAmessageVO());
+					content = text[5];
 					String[] decryptN = content.split("#n:931006");
-					if(decryptN[0].equals("#oneLeft:931006")) {
-						mainApp.chatPanel.p_north_chat_member_panel.removeAll();
-						JLabel membernameLabel = new JLabel("참여자가 없는 방입니다.");
-						membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
-						membernameLabel.setForeground(Color.WHITE);
-						membernameLabel.setPreferredSize(new Dimension(400, 60));
-						mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
-						mainApp.p_center.updateUI();
+					
+					if(decryptN[0].equals("#newChat:931006")) {
+						if (chat_lib.memberComparing(mainApp.messageVO.getChat_id(),
+								mainApp.getRegistMemberVO().getMember_no())) {
+							chat_lib.refreshChatList(mainApp.con);
+						}
+					}else if(decryptN[0].equals("#oneLeft:931006")) {
+						if(mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
+							mainApp.chatPanel.p_north_chat_member_panel.removeAll();
+							JLabel membernameLabel = new JLabel("참여자가 없는 채팅방입니다.");
+							membernameLabel.setFont(new Font("HY견고딕", Font.PLAIN, 20));
+							membernameLabel.setForeground(Color.WHITE);
+							membernameLabel.setPreferredSize(new Dimension(300, 60));
+							mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
+							mainApp.chattextArea.setEnabled(false);
+							System.out.println("#oneLeft 들어옴");
+							mainApp.chattextArea.updateUI();
+							mainApp.chatPanel.p_north_chat_member_panel.updateUI();
+						}
 					}else if(decryptN[0].equals("#outFromChat:931006")) {
-						JOptionPane.showMessageDialog(mainApp.frame, "누가나나가는거체킹되긴됨");
+						if(mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
+							chat_lib.setCurrentChatVO(mainApp.chatVO.getChat_title());
+							chat_lib.loadChatPanel();
+							
+							String m_name = chat_lib.changeMemberNotoName(mainApp.messageVO.getMember_no());
+							ChatOutPopPanel chatOutPopPanel = new ChatOutPopPanel(m_name, mainApp.chatOut_pop);
+							mainApp.chatOut_pop = mainApp.popupFactory.getPopup(mainApp.frame, chatOutPopPanel, mainApp.frame.getLocationOnScreen().x+450, mainApp.frame.getLocationOnScreen().y+150 );
+							chatOutPopPanel.close_button.addActionListener((e)->{
+								mainApp.chatOut_pop.hide();
+								if(mainApp.messageVO.getChat_id() == mainApp.chatVO.getChat_id() && mainApp.messageVO.getMember_no() == mainApp.getRegistMemberVO().getMember_no()) {
+									mainApp.p_center_south.setVisible(false);
+									mainApp.p_chat_south_center.setPreferredSize(new Dimension(240, mainApp.chatSmallPanels.size()*45));
+									mainApp.p_center_center.removeAll();
+									mainApp.p_center_center.updateUI();
+									mainApp.p_chat_south_center.updateUI();
+								}
+							});
+							mainApp.chatOut_pop.show();
+							
+						}
 					}else {
-						String decryptNcontent = "";
-						StringBuffer sb = new StringBuffer();
-						for(int i =0; i<decryptN.length; i++) {
-							sb.append(decryptN[i]+"\n");
+						
+						if (mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
+							String decryptNcontent = "";
+							StringBuffer sb = new StringBuffer();
+							for (int i = 0; i < decryptN.length; i++) {
+								if (!decryptN[i].equals("null")) {
+									sb.append(decryptN[i] + "\n");
+								}
+							}
+							decryptNcontent = sb.toString();
+							if (decryptNcontent != null) {
+								insertMyChat(decryptNcontent);
+							}
 						}
-						decryptNcontent = sb.toString(); 
-						if(decryptNcontent != null) {
-							insertMyChat(decryptNcontent);
-						}
-					}	
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
-
-	}
 
 	//MainApp에서 채팅 칠시 send메소드 호출
 	//클라이언트의 소켓으로 전송
@@ -198,6 +229,7 @@ public class MainAppChatThread extends Thread{
 		
 		mainApp.p_chat.setPreferredSize(new Dimension(300, mainApp.messageVOList.size()*105));
 		mainApp.p_chat.add(aChatPanel);
+		mainApp.chat_scroll.revalidate();
 		int max = mainApp.chat_scroll.getVerticalScrollBar().getMaximum();
 		
 		Runnable doScroll = new Runnable() {
@@ -208,7 +240,6 @@ public class MainAppChatThread extends Thread{
 		};
 		SwingUtilities.invokeLater(doScroll);
 		
-		mainApp.chat_scroll.revalidate();
 		mainApp.p_chat.updateUI();
 		mainApp.p_center.updateUI();
 		}

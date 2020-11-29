@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.SystemColor;
@@ -32,14 +31,12 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import com.mysql.cj.jdbc.result.ResultSetMetaData;
-
+import socket.MainAppChatSocket;
 import layout.ChatPanel;
 import layout.MainApp;
 import models.ChatMemberVO;
 import models.ChatVO;
 import models.MessageVO;
-import socket.MainAppChatSocket;
 
 /*
  * 채팅 관련 메소드들 모아놓는 lib 클래스
@@ -180,24 +177,59 @@ public class Chat_lib {
 		panel1.addMouseListener(chat_m_adapt);
 		Xbutton.addActionListener((e)->{
 			chatListButtonX(panel1, label, Xbutton, chatName);
-			
 		});
-
 		if (mainApp.chatSmallPanels.size() <= 0) {
 			panel1.setBounds(0, 0, 240, 40);
 		} else {
 			panel1.setBounds(mainApp.chatSmallPanels.get(mainApp.chatSmallPanels.size() - 1).getX(),
 					mainApp.chatSmallPanels.get(mainApp.chatSmallPanels.size() - 1).getY() + 40, 240, 40);
 		}
-
 		mainApp.chatSmallPanels.add(panel1);
-		mainApp.p_chat_south_center.add(mainApp.chatSmallPanels.get(mainApp.chatSmallPanels.size() - 1));
+		mainApp.p_chat_south_center.add(panel1);
 		mainApp.p_chat_south_center.setPreferredSize(new Dimension(240, mainApp.chatSmallPanels.size()*45));
 		mainApp.p_chat_south_center.updateUI();
 		mainApp.p_west_south_chat.updateUI();
 	}
 	
-	//채팅리스트 패널의 x버튼 메소드, 채팅테이블의 참여 멤버에서 본인을 지움.
+	//DB조회하여 내가 참여한 방을 확인후 chatList 새로고침
+	public void refreshChatList(Connection con) {
+		mainApp.p_chat_south_center.removeAll();
+		mainApp.chatSmallLabels.clear();
+		mainApp.chatSmallPanels.clear();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		String sql_chat_id = "select chat_id from chatmember where member_no = ?";
+    	String sql_chat_title = "select chat_title from chat where chat_id = ? and chat_status = ?";
+    	ArrayList<Integer> chat_id_list = new ArrayList<Integer>();
+    	String title = "";
+    	try {
+    		pstmt = con.prepareStatement(sql_chat_id);
+    		pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				chat_id_list.add(rs.getInt("chat_id"));
+			}
+			
+			pstmt = con.prepareStatement(sql_chat_title);
+			for(int i=0; i<chat_id_list.size();i++) {
+				pstmt.setInt(1, chat_id_list.get(i));
+				pstmt.setString(2, "1");
+				rs = pstmt.executeQuery();
+				if(rs.next() != false) {
+					title = rs.getString("chat_title");
+					createChatList(mainApp.p_chat_south_center, title, 15);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	//deprecate 될예정
+	
+	
+	//채팅리스트 패널의 x버튼 메소드, 채팅테이블의 참여 멤버에서 본인을 지움. 그리고 서버에 변경사항을 명령문으로 전달.
 	public void chatListButtonX(JPanel panel1, JLabel chat_title_label, JButton Xbutton, String chatName) {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -224,23 +256,43 @@ public class Chat_lib {
 			pstmt = con.prepareStatement(sql);
 			pstmt.setInt(1, mainApp.getRegistMemberVO().getMember_no());
 			pstmt.setInt(2, chat_id);
-			int isDone = pstmt.executeUpdate();
-			/*
-			if(isDone == 0 ) {
-//				System.out.println("chatMember에서 본인삭제실패");
-			}else {
-//				System.out.println("chatMember에서 본인삭제완료");
-			}
-			*/
+			pstmt.executeUpdate();
 			if(isChatMemberNull(chat_id) == 0) {
 				String sql_setChatStatus = "update chat set chat_status = '0' where chat_id = "+chat_id;
 				pstmt = con.prepareStatement(sql_setChatStatus);
 				pstmt.executeUpdate();
 			}else if(isChatMemberNull(chat_id) == 1) {
-				mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
+				if(mainApp.isSocketConnected == false) {
+					mainApp.mainAppChatSocket = new MainAppChatSocket(mainApp);
+					mainApp.isSocketConnected = true;
+				}
+				if(mainApp.isCnt == false) {
+				sendClientInfo(chat_id, mainApp.getRegistMemberVO().getMember_no(), mainApp.getRegistMemberVO().getMember_name());
+				mainApp.isCnt = true;
 				mainApp.mainAppChatSocket.mainAppchatThread.send("#oneLeft:931006");
+				}else if(mainApp.isCnt) {
+					mainApp.mainAppChatSocket.mainAppchatThread.send("chatChanged:931006");
+					mainApp.isCnt = false;
+					sendClientInfo(chat_id, mainApp.getRegistMemberVO().getMember_no(), mainApp.getRegistMemberVO().getMember_name());
+					mainApp.isCnt = true;
+					mainApp.mainAppChatSocket.mainAppchatThread.send("#oneLeft:931006");
+				}
 			}else if(isChatMemberNull(chat_id) == 2) {
-				mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
+				if(mainApp.isSocketConnected == false) {
+					mainApp.mainAppChatSocket = new MainAppChatSocket(mainApp);
+					mainApp.isSocketConnected = true;
+				}
+				if(mainApp.isCnt == false) {
+					sendClientInfo(chat_id, mainApp.getRegistMemberVO().getMember_no(), mainApp.getRegistMemberVO().getMember_name());
+					mainApp.isCnt = true;
+					mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
+				}else if(mainApp.isCnt) {
+					mainApp.mainAppChatSocket.mainAppchatThread.send("chatChanged:931006");
+					mainApp.isCnt = false;
+					sendClientInfo(chat_id, mainApp.getRegistMemberVO().getMember_no(), mainApp.getRegistMemberVO().getMember_name());
+					mainApp.isCnt = true;
+					mainApp.mainAppChatSocket.mainAppchatThread.send("#outFromChat:931006");
+				}
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -342,7 +394,10 @@ public class Chat_lib {
 		mainApp.p_center_south.setVisible(true);
 		mainApp.p_center_south.add(mainApp.chattextArea);
 		mainApp.p_center.add(mainApp.p_center_south, BorderLayout.SOUTH);
-		
+		if(mainApp.isCnt) {
+			mainApp.mainAppChatSocket.mainAppchatThread.send("chatChanged:931006");
+			mainApp.isCnt = false;
+		}
 		int current_chat_id = mainApp.chatVO.getChat_id();
 		if(mainApp.loadFlag) {
 			mainApp.chatPanel = new ChatPanel();
@@ -350,7 +405,6 @@ public class Chat_lib {
 			mainApp.chatPanel.p_north_chat_member_panel.removeAll();
 			mainApp.loadFlag = false;
 		}else {
-			mainApp.mainAppChatSocket.mainAppchatThread.send("chatChanged:931006");
 			mainApp.p_center_center.removeAll();
 			mainApp.chatPanel = new ChatPanel();
 			mainApp.chatPanel.p_north_chat_title.setText("");
@@ -384,8 +438,11 @@ public class Chat_lib {
 		if(isChatMemberNull(current_chat_id) == 1) {
 			isAlone = true;
 		}
-		mainApp.mainAppChatSocket.mainAppchatThread.send(client_info);
 		//서버로 정보보내기
+		if(mainApp.isCnt == false) {
+			mainApp.mainAppChatSocket.mainAppchatThread.send(client_info);
+			mainApp.isCnt = true;
+		}
 		try {
 			pstmt = con.prepareStatement(sql_select_message);
 			pstmt.setInt(1, mainApp.chatVO.getChat_id());
@@ -419,6 +476,7 @@ public class Chat_lib {
 				membernameLabel.setForeground(Color.WHITE);
 				membernameLabel.setPreferredSize(new Dimension(400, 60));
 				mainApp.chatPanel.p_north_chat_member_panel.add(membernameLabel);
+				mainApp.chattextArea.setEnabled(false);
 			}
 			mainApp.p_chat.updateUI();
 			mainApp.p_center_center.updateUI();
@@ -521,6 +579,39 @@ public class Chat_lib {
 		}
 		return hasChat;
 	}
+	
+	
+	//새로운 채팅이 생겼다는 메시지를 서버가 수신했을때,
+	//현재 로그인한 멤버의pk를 DB내에서 해당메시지가 가지고있는 chatPK로 chatMember에서검색하여
+	//내가 초대되 있는방인지 아닌지를 확인하는 메소드
+	public boolean memberComparing(int chat_id, int member_no) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		boolean hasMe = false;
+		String sql = "select * from chatmember where chat_id = "+chat_id+" and member_no ="+member_no;
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				hasMe = true;
+			}else {
+				hasMe = false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.close(pstmt,rs);
+		}
+		return hasMe;
+	}
+	
+	//소켓으로 채팅방에관한 명령문 전달시, 해당 채팅방의 정보를 전달하는 메소드
+	public void sendClientInfo(int chat_id, int member_no, String member_name ) {
+		String clientInfo = chat_id+","+member_no+","+member_name;
+		mainApp.mainAppChatSocket.mainAppchatThread.send(clientInfo);
+		System.out.println("sendClientInfo 발동 인포는 : "+clientInfo);
+	}
 
 	// 채팅생성시팝업패널에 현재 회원목록을 보여주는 체크박스 생성 메소드
 	public void createPopPanelCheckBox() {
@@ -592,7 +683,7 @@ public class Chat_lib {
 	public void chatPopAddappendLabel(String name) {
 			mainApp.chat_settedMember.add(name);
 			JLabel selectedName = new JLabel(name);
-			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 14));
+			selectedName.setFont(new Font("HY견고딕", Font.PLAIN, 25));
 			selectedName.setPreferredSize(new Dimension(180, 30));
 			mainApp.chatPopAddLabels.add(selectedName);
 			mainApp.p_chat_set_pop_add_panel.add(selectedName);

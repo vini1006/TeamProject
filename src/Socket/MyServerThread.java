@@ -64,29 +64,24 @@ public class MyServerThread extends Thread {
 			while(isAlive) {
 				if(cnt == 0) {
 					msg = buffr.readLine();
+					System.out.println("나는 cnt 0일때의 msg : "+msg);
 					if(msg.equals("exit:931006")){
 						myServerSocket.threadList.remove(this);
 						isAlive = false;
-						System.out.println("채팅창 나간데 ! msg : "+msg);
-					}else if(msg.equals("#oneLeft:931006")) {
-						getInfo(msg);
-						send(msg);
-					}else if(msg.equals("#outFromChat:931006")) {
-						getInfo(msg);
-						send(msg);
 					}else {
 						getInfo(msg);
-						System.out.println("난 채팅창 바꿀떄 한번만 나타나야해!");
 					}
 				}else if(cnt > 0) {
 					msg = buffr.readLine();
+					System.out.println("나느 cnt 1일때의 msg : "+msg);
 					if(msg.equals("exit:931006")) {
 						myServerSocket.threadList.remove(this);
 						isAlive = false;
-						System.out.println("채팅창 나간데 ! msg : "+msg);
+					}else if(msg.equals("#newChat:931006")) {
+						send(msg);
 					}else if(msg.equals("chatChanged:931006")) {
 						this.cnt = 0;
-						System.out.println("채팅창 바꾼데 ! msg : "+msg);
+						System.out.println("cnt 1일때 chatChanged 발동");
 					}else if(msg.equals("#oneLeft:931006")) {
 						send(msg);
 					}else if(msg.equals("#outFromChat:931006")) {
@@ -104,6 +99,7 @@ public class MyServerThread extends Thread {
 	}
 	
 	public void getInfo(String clientInfo) {
+		System.out.println("getInfo 발동");
 		String[] info = clientInfo.split(",");
 		chat_id = info[0];
 		System.out.println("받은 채팅 pk는 : "+chat_id);
@@ -113,6 +109,7 @@ public class MyServerThread extends Thread {
 		System.out.println("받은 회원 이름은 : "+current_memberName);
 		this.cnt = 1;
 	}
+	
 
 	public void dbWrite(String content) {
 
@@ -146,11 +143,24 @@ public class MyServerThread extends Thread {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			try {
+				pstmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
 		}
 	}
 
 	public void send(String msg) {
 		try {
+			System.out.println("서버뜨레드에서 send 발동됨");
 			for (int i = 0; i < myServerSocket.threadList.size(); i++) {
 				MyServerThread myServerThread = myServerSocket.threadList.get(i);
 				myServerThread.buffw.write(chat_id + ","+ current_time+","+ member_no + ","+ current_messageId+","+current_memberName+","+msg + "\n");

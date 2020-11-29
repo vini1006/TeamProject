@@ -26,7 +26,6 @@ public class MainAppChatSocket {
 		try {
 			socket = new Socket(ip, port);
 			System.out.println("채팅서버 접속시도");
-			
 			//무한루프로 주고받을아이들 
 			mainAppchatThread = new MainAppChatThread(mainApp, socket, this);
 			mainAppchatThread.start();

@@ -33,9 +33,12 @@ import utill.DBManager;
 
 public class RegistForm extends JFrame {
 
-	private static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
-	private static final String user = "koreait"; // DB ID
-	private static final String pass = "1234"; // DB 패스워드
+//	private static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
+//	private static final String user = "koreait"; // DB ID
+//	private static final String pass = "1234"; // DB 패스워드
+	private static final String url = "jdbc:oracle:thin:@localhost:1521:ORCL";
+	private static final String user = "user1104"; // DB ID
+	private static final String pass = "user1104"; // DB 패스워드
 
 	public static final int WIDTH = 450;
 	public static final int HEIGHT = 630;
