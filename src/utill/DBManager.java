@@ -19,9 +19,9 @@ public class DBManager {
 //	private String url="jdbc:oracle:thin:@localhost:1521:XE";
 //	private String user="koreait";
 //	private String password="1234";
-	private static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
-	private static final String user = "koreait"; // DB ID
-	private static final String password = "1234"; // DB 패스워드
+	public static final String url = "jdbc:oracle:thin:@localhost:1521:XE";
+	public static final String user = "koreait"; // DB ID
+	public static final String password = "1234"; // DB 패스워드
 	
 	//이 메서드를 호출하는 자는 Connection 객체를 반환받을수 있도록..
 	public Connection connect() {

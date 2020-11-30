@@ -221,7 +221,7 @@ public class RegistForm extends JFrame {
 			String sql = "insert into RegistMember(member_no, member_name,member_email,member_id ,member_password,member_rank)";
 			sql += " values(seq_RegistMember.nextval, ?,?,?,?,?)";
 
-			con = DriverManager.getConnection(url, user, pass);
+			con = DriverManager.getConnection(DBManager.url, DBManager.user, DBManager.password);
 			psmt = con.prepareStatement(sql);
 			psmt.setString(1, t_name.getText());
 			psmt.setString(2, t_email.getText());

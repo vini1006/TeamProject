@@ -493,34 +493,6 @@ public class Chat_lib {
 		}
 	}
 	
-	//deprecate 될 예정
-	public void insertMessageDB(String content) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		String sql = "insert into message(chat_id, message_id, content, chat_time, member_no)";
-		sql += " values(?, seq_message.nextval, ?, ?, ?)";
-		
-		SimpleDateFormat date_format = new SimpleDateFormat ( "MM월dd일 HH시mm분ss초");
-		String current_time = date_format.format (System.currentTimeMillis());
-		
-		try {
-			pstmt = mainApp.con.prepareStatement(sql);
-			pstmt.setInt(1, mainApp.chatVO.getChat_id());
-			pstmt.setString(2, content);
-			pstmt.setString(3, current_time);
-			pstmt.setInt(4, mainApp.getRegistMemberVO().getMember_no());
-			int isDone = pstmt.executeUpdate();
-			if(isDone==0) {
-				JOptionPane.showMessageDialog(mainApp.frame, "입력실패!");
-			}else {
-				JOptionPane.showMessageDialog(mainApp.frame, "입력성공!");
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	//멤버no를 멤버name으로 바꿔줌
 	public String changeMemberNotoName(int member_no) {
 		String member_name = "";

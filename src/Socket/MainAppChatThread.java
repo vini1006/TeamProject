@@ -125,10 +125,8 @@ public class MainAppChatThread extends Thread{
 								}
 							});
 							mainApp.chatOut_pop.show();
-							
 						}
 					}else {
-						
 						if (mainApp.chatVO.getChat_id() == mainApp.messageVO.getChat_id()) {
 							String decryptNcontent = "";
 							StringBuffer sb = new StringBuffer();
@@ -140,6 +138,7 @@ public class MainAppChatThread extends Thread{
 							decryptNcontent = sb.toString();
 							if (decryptNcontent != null) {
 								insertMyChat(decryptNcontent);
+								mainApp.p_chat.updateUI();
 							}
 						}
 					}
@@ -242,6 +241,7 @@ public class MainAppChatThread extends Thread{
 		
 		mainApp.p_chat.updateUI();
 		mainApp.p_center.updateUI();
+		
 		}
 	
 	

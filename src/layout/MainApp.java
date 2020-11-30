@@ -104,7 +104,9 @@ public class MainApp {
 	/*---------------------------------------------------------------
 	* 채팅 관련 끝
 	---------------------------------------------------------------*/
-	
+	DevContact devcontact;
+	Popup devPop;
+	boolean isdevPop = false;
 	
 	/*---------------------------------------------------------------
 	* 채팅 소켓 관련 
@@ -201,6 +203,10 @@ public class MainApp {
 		
 		//게시판 제목 헤더에 띄우기 
 		headerIssue = new HeaderIssue(this);
+		
+		//데브 팝업
+		devcontact = new DevContact();
+		
 		//게시판 그룹 출력 ..
 		initialize();
 		board_Group_lib.selectBoardGroup();
@@ -762,6 +768,18 @@ public class MainApp {
 		p_hamburger_la_devContact.setFont(new Font("HY견고딕", Font.PLAIN, 20));
 		p_hamburger_la_devContact.setBounds(12, 36, 171, 26);
 		p_hamburger_team_panel.add(p_hamburger_la_devContact);
+		p_hamburger_la_devContact.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				if(isdevPop == false) {
+					devPop = popupFactory.getPopup(frame, devcontact.getDevContact(), frame.getLocationOnScreen().x+520 , frame.getLocationOnScreen().y+50);
+					devPop.show();
+					isdevPop = true;
+				}else {
+					devPop.hide();
+					isdevPop = false;
+				}
+			}
+		});
 
 		JPanel p_hamburger_logout_panel = new JPanel();
 		p_hamburger_logout_panel.setBounds(0, 97, 240, 106);

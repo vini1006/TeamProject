@@ -226,10 +226,10 @@ public class LoginPage extends JPanel {
 		bt_askEmail.addActionListener((e) -> {
 			String askEmail = t_askEmail.getText();
 			Mailing mailing = new Mailing(askEmail);
-
+			
 			System.out.println(askEmail);
 
-			mailing.send(askEmail);
+			mailing.send(askEmail,searchPassword(askEmail));
 			p_findPass.setVisible(false);
 			opaqPanel.setVisible(false);
 			t_id.setEnabled(true);
@@ -259,6 +259,43 @@ public class LoginPage extends JPanel {
 		c_panel.add(opaqPanel);
 		opaqPanel.setLayout(null);
 
+	}
+	public String searchPassword(String Email) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		dbManager = new DBManager();
+		String pass = "초기값";
+		String sql = "select member_password from RegistMember where member_email= ?";
+		try {
+			con = DriverManager.getConnection(DBManager.url, DBManager.user, DBManager.password);
+			pstmt = con.prepareStatement(sql); // 쿼리문 준비
+			pstmt.setString(1, Email);
+			
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				pass = rs.getString("member_password");
+			}
+			
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return pass;
 	}
 
 	public void login() {
